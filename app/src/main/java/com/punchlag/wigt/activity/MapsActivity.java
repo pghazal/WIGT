@@ -1,6 +1,8 @@
 package com.punchlag.wigt.activity;
 
 import android.os.Bundle;
+import android.util.Log;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -8,10 +10,14 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.punchlag.wigt.R;
+import com.punchlag.wigt.model.Alarm;
+import com.punchlag.wigt.utils.Arguments;
 
 public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+
+    private Alarm mAlarm;
 
     @Override
     public int getLayoutResourceId() {
@@ -21,9 +27,22 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState == null) {
+            parseArguments(getIntent().getExtras());
+        } else {
+            parseArguments(savedInstanceState);
+        }
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+    }
+
+    private void parseArguments(Bundle args) {
+        if (args != null) {
+            mAlarm = args.getParcelable(Arguments.ARG_ALARM);
+        }
+
+        Log.d("TAG", mAlarm.toString());
     }
 
     /**
