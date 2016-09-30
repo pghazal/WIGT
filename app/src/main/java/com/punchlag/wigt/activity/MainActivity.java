@@ -1,16 +1,20 @@
 package com.punchlag.wigt.activity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import com.punchlag.wigt.R;
+import com.punchlag.wigt.fragment.MainFragment;
 
 public class MainActivity extends BaseActivity {
 
     @Override
+    public int getLayoutResourceId() {
+        return R.layout.activity_main;
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        Intent intent = new Intent(this, MapsActivity.class);
-        startActivity(intent);
+
+        addActivityContentFragmentWithTag(MainFragment.newInstance(), "");
     }
 }
