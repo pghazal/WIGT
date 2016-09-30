@@ -1,3 +1,4 @@
 <resources>
 
+    <dimen name="base_vertical_margin">12dp</dimen>
 </resources>
