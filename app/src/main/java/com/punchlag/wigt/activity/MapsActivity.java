@@ -1,7 +1,9 @@
 package com.punchlag.wigt.activity;
 
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.util.Log;
+import android.view.MenuItem;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -27,6 +29,7 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        enableNavigationUp();
         if (savedInstanceState == null) {
             parseArguments(getIntent().getExtras());
         } else {
@@ -43,6 +46,16 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
         }
 
         Log.d("TAG", mAlarm.toString());
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     /**
