@@ -48,4 +48,9 @@ public class Alarm implements Parcelable {
             return new Alarm[size];
         }
     };
+
+    @Override
+    public String toString() {
+        return Alarm.class.getSimpleName() + "# " + hour + ":" + minute;
+    }
 }
