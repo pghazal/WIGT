@@ -11,12 +11,12 @@ buildscript {
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion rootProject.ext.compile_sdk_version
-    buildToolsVersion rootProject.ext.build_tools_version
+    compileSdkVersion project.compile_sdk_version
+    buildToolsVersion project.build_tools_version
     defaultConfig {
         applicationId "com.punchlag.wigt"
-        minSdkVersion rootProject.ext.min_sdk_version
-        targetSdkVersion rootProject.ext.compile_sdk_version
+        minSdkVersion project.min_sdk_version
+        targetSdkVersion project.compile_sdk_version
         versionCode project.ext.build_version_code
         versionName project.ext.version_name
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
