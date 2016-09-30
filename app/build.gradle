@@ -1,14 +1,24 @@
+buildscript {
+    project.ext {
+        major_version_name = "1"
+        feature_version_name = "0"
+        hotfix_version_name = "0"
+        build_version_code = 1
+        version_name = "${major_version_name}.${feature_version_name}.${hotfix_version_name}"
+    }
+}
+
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion "23.0.3"
+    compileSdkVersion rootProject.ext.compile_sdk_version
+    buildToolsVersion rootProject.ext.build_tools_version
     defaultConfig {
         applicationId "com.punchlag.wigt"
-        minSdkVersion 18
-        targetSdkVersion 24
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion rootProject.ext.min_sdk_version
+        targetSdkVersion rootProject.ext.compile_sdk_version
+        versionCode project.ext.build_version_code
+        versionName project.ext.version_name
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
