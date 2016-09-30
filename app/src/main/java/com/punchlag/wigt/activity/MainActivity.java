@@ -14,7 +14,6 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        addActivityContentFragmentWithTag(MainFragment.newInstance(), "");
+        addActivityContentFragmentWithTag(MainFragment.newInstance(), MainFragment.FRAGMENT_TAG);
     }
 }

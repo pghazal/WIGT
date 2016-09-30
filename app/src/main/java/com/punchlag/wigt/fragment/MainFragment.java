@@ -9,6 +9,8 @@ import com.punchlag.wigt.activity.MapsActivity;
 
 public class MainFragment extends BaseFragment {
 
+    public static final String FRAGMENT_TAG = MainFragment.class.getSimpleName();
+
     public static MainFragment newInstance() {
         MainFragment fragment = new MainFragment();
         Bundle arguments = new Bundle();
@@ -24,7 +26,6 @@ public class MainFragment extends BaseFragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         Intent intent = new Intent(getContext(), MapsActivity.class);
         startActivity(intent);
     }
