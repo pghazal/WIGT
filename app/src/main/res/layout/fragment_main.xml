@@ -8,14 +8,23 @@
         android:id="@+id/alarmSwitch"
         android:layout_width="match_parent"
         android:layout_height="@dimen/base_item_height"
-        android:gravity="center"
         android:freezesText="true"
+        android:gravity="center"
         android:text="Wake me up" />
 
-    <SeekBar
+    <android.support.v7.widget.AppCompatSeekBar
+        android:id="@+id/seekBar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/base_item_height"
-        android:id="@+id/seekBar" />
+        android:max="10"
+        android:progress="5" />
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/seekBarValueText"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/base_item_height"
+        android:gravity="center"
+        android:text="Value" />
 
     <android.support.v7.widget.AppCompatButton
         android:id="@+id/validationButton"
