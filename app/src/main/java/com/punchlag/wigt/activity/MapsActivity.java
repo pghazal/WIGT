@@ -1,7 +1,6 @@
 package com.punchlag.wigt.activity;
 
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.MenuItem;
 
@@ -12,14 +11,13 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.punchlag.wigt.R;
-import com.punchlag.wigt.model.Alarm;
 import com.punchlag.wigt.utils.Arguments;
 
 public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
 
-    private Alarm mAlarm;
+    private boolean mAlarmActivated;
 
     @Override
     public int getLayoutResourceId() {
@@ -42,10 +40,10 @@ public class MapsActivity extends BaseActivity implements OnMapReadyCallback {
 
     private void parseArguments(Bundle args) {
         if (args != null) {
-            mAlarm = args.getParcelable(Arguments.ARG_ALARM);
+            mAlarmActivated = args.getBoolean(Arguments.ARG_ALARM_ACTIVATED);
         }
 
-        Log.d("TAG", mAlarm.toString());
+        Log.d("TAG", "" + mAlarmActivated);
     }
 
     @Override

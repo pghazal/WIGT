@@ -5,15 +5,11 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatButton;
-import android.widget.TimePicker;
+import android.support.v7.widget.SwitchCompat;
 
 import com.punchlag.wigt.R;
 import com.punchlag.wigt.activity.MapsActivity;
-import com.punchlag.wigt.model.Alarm;
 import com.punchlag.wigt.utils.Arguments;
-import com.punchlag.wigt.utils.SystemUtils;
-
-import java.util.Calendar;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -22,8 +18,8 @@ public class MainFragment extends BaseFragment {
 
     public static final String FRAGMENT_TAG = MainFragment.class.getSimpleName();
 
-    @BindView(R.id.timePicker)
-    TimePicker timePicker;
+    @BindView(R.id.alarmSwitch)
+    SwitchCompat alarmSwitch;
 
     @BindView(R.id.validationButton)
     AppCompatButton validationButton;
@@ -42,36 +38,15 @@ public class MainFragment extends BaseFragment {
 
     @Override
     public void configureSubviews(Bundle savedInstanceState) {
-        initTimePicker();
-    }
-
-    @TargetApi(Build.VERSION_CODES.M)
-    private void initTimePicker() {
-        Calendar calendar = Calendar.getInstance();
-        timePicker.setIs24HourView(true);
-        int hours = calendar.get(Calendar.HOUR_OF_DAY);
-        int minutes = calendar.get(Calendar.MINUTE);
-        if (SystemUtils.isAboveMarshmallow()) {
-            timePicker.setHour(hours);
-            timePicker.setMinute(minutes);
-        } else {
-            timePicker.setCurrentHour(hours);
-            timePicker.setCurrentMinute(minutes);
-        }
     }
 
     @OnClick(R.id.validationButton)
     @TargetApi(Build.VERSION_CODES.M)
     public void validateAlarm() {
-        Alarm alarm;
-        if (SystemUtils.isAboveMarshmallow()) {
-            alarm = new Alarm(timePicker.getHour(), timePicker.getMinute());
-        } else {
-            alarm = new Alarm(timePicker.getCurrentHour(), timePicker.getCurrentMinute());
-        }
+        boolean alarmActivated = alarmSwitch.isChecked();
 
         Intent intent = new Intent(getContext(), MapsActivity.class);
-        intent.putExtra(Arguments.ARG_ALARM, alarm);
+        intent.putExtra(Arguments.ARG_ALARM_ACTIVATED, alarmActivated);
         startActivity(intent);
     }
 }
