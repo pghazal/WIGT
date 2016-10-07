@@ -1,18 +1,21 @@
 package com.punchlag.wigt.fragment;
 
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.support.annotation.NonNull;
+import android.widget.Toast;
 import butterknife.BindView;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.punchlag.wigt.R;
+import com.punchlag.wigt.utils.PermissionChecker;
+
+import static android.content.Context.LOCATION_SERVICE;
 
 public class MapsFragment extends BaseFragment implements OnMapReadyCallback {
 
@@ -20,6 +23,8 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback {
 
     @BindView(R.id.mapView)
     MapView mapView;
+
+    private GoogleMap mMap;
 
     public static MapsFragment newInstance() {
         MapsFragment mapFragment = new MapsFragment();
@@ -42,22 +47,49 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback {
         mapView.getMapAsync(this);
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        GoogleMap mMap = googleMap;
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        mMap = googleMap;
+        if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
+            try {
+                mMap.setMyLocationEnabled(true);
+                mMap.getUiSettings().setMyLocationButtonEnabled(true);
+                // Getting LocationManager object from System Service LOCATION_SERVICE
+                LocationManager locationManager = (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
+                // Creating a criteria object to retrieve provider
+                Criteria criteria = new Criteria();
+                // Getting the name of the best provider
+                String provider = locationManager.getBestProvider(criteria, true);
+                // Getting Current Location
+                Location location = locationManager.getLastKnownLocation(provider);
+                if (location != null) {
+                    // Getting latitude of the current location
+                    double latitude = location.getLatitude();
+                    // Getting longitude of the current location
+                    double longitude = location.getLongitude();
+                    // Creating a LatLng object for the current location
+                    LatLng myPosition = new LatLng(latitude, longitude);
+                    googleMap.addMarker(new MarkerOptions().position(myPosition).title("Start"));
+                }
+            } catch (SecurityException ex) {
+                ex.printStackTrace();
+            }
+        } else {
+            PermissionChecker.requestLocationPermission(this);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case PermissionChecker.REQUEST_CODE_LOCATION_PERMISSION:
+                Toast.makeText(getContext(),
+                        "Permission : " + permissions + "\nGranted : " + grantResults, Toast.LENGTH_LONG).show();
+                break;
+            default:
+                break;
+        }
     }
 
     @Override
