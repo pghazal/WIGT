@@ -9,10 +9,9 @@ import android.support.v7.widget.AppCompatSeekBar;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.SwitchCompat;
 import android.widget.SeekBar;
-import android.widget.TextView;
 
 import com.punchlag.wigt.R;
-import com.punchlag.wigt.activity.MapsActivity;
+import com.punchlag.wigt.maps.MapsActivity;
 import com.punchlag.wigt.utils.Arguments;
 
 import butterknife.BindView;

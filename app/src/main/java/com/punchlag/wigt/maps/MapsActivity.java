@@ -1,10 +1,10 @@
-package com.punchlag.wigt.activity;
+package com.punchlag.wigt.maps;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import com.punchlag.wigt.R;
-import com.punchlag.wigt.fragment.MapsFragment;
+import com.punchlag.wigt.activity.BaseActivity;
+import com.punchlag.wigt.maps.MapsFragment;
 import com.punchlag.wigt.utils.Arguments;
 
 public class MapsActivity extends BaseActivity {

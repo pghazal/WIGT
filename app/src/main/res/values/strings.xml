@@ -2,4 +2,5 @@
     <string name="app_name">WIGT</string>
     <string name="title_activity_maps">Map</string>
     <string name="text_validate">Valider</string>
+    <string name="text_network_not_available">Network not available</string>
 </resources>
