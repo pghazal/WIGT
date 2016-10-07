@@ -1,5 +1,6 @@
 package com.punchlag.wigt.activity;
 
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -7,10 +8,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.widget.FrameLayout;
 
+import com.punchlag.wigt.R;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
-
-import com.punchlag.wigt.R;
 
 public abstract class BaseActivity extends AppCompatActivity {
 
@@ -25,6 +26,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(getLayoutResourceId());
         ButterKnife.bind(this);
         setupToolbar();
