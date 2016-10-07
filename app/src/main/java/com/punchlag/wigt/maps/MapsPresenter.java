@@ -11,7 +11,12 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.punchlag.wigt.utils.PermissionChecker;
 
 public class MapsPresenter implements GoogleApiClient.ConnectionCallbacks,
@@ -24,6 +29,8 @@ public class MapsPresenter implements GoogleApiClient.ConnectionCallbacks,
     private LocationRequest mLocationRequest;
     private GoogleApiClient mGoogleApiClient;
     private GoogleMap googleMap;
+    private Location mLastLocation;
+    private Marker mCurrLocationMarker;
 
     public MapsPresenter(IMapsView mapsView, GoogleMap googleMap) {
         this.mapsView = mapsView;
@@ -83,6 +90,26 @@ public class MapsPresenter implements GoogleApiClient.ConnectionCallbacks,
 
     @Override
     public void onLocationChanged(Location location) {
+        mLastLocation = location;
+        if (mCurrLocationMarker != null) {
+            mCurrLocationMarker.remove();
+        }
 
+        //Place current location marker
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.position(latLng);
+        markerOptions.title("Current Position");
+        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+        mCurrLocationMarker = googleMap.addMarker(markerOptions);
+
+        //move map camera
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        googleMap.animateCamera(CameraUpdateFactory.zoomTo(11));
+
+        //stop location updates
+        if (mGoogleApiClient != null) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        }
     }
 }
