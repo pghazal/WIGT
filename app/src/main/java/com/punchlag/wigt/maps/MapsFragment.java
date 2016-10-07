@@ -2,6 +2,7 @@ package com.punchlag.wigt.maps;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -11,12 +12,15 @@ import com.punchlag.wigt.R;
 import com.punchlag.wigt.fragment.BaseFragment;
 import com.punchlag.wigt.utils.NetworkUtils;
 import com.punchlag.wigt.utils.PermissionChecker;
+import com.punchlag.wigt.utils.SystemUtils;
 
 import butterknife.BindView;
 
 public class MapsFragment extends BaseFragment implements OnMapReadyCallback, IMapsView {
 
     public static final String FRAGMENT_TAG = MapsFragment.class.getSimpleName();
+
+    private static final int REQUEST_CODE_LOCATION_PERMISSION = 10;
 
     @BindView(R.id.mapView)
     MapView mapView;
@@ -45,17 +49,30 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, IM
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
-        if (!NetworkUtils.isConnectionAvailable(getContext())) {
-            Toast.makeText(getContext(), R.string.text_network_not_available, Toast.LENGTH_SHORT).show();
-        }
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
+        if (SystemUtils.isAboveMarshmallow()) {
+            checkLocationPermission();
+        }
+    }
+
+    private void checkLocationPermission() {
+        if (!PermissionChecker.hasLocationPermissionGranted(getContext())) {
+            PermissionChecker.requestLocationPermission(this, REQUEST_CODE_LOCATION_PERMISSION);
+        }
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
         mapsPresenter = new MapsPresenter(this, googleMap);
 
-        if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
-            mapsPresenter.initMaps(getContext());
+        if (SystemUtils.isAboveMarshmallow()) {
+            if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
+                mapsPresenter.init(getContext());
+            }
         } else {
-            PermissionChecker.requestLocationPermission(this);
+            mapsPresenter.init(getContext());
         }
     }
 
@@ -63,8 +80,12 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, IM
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
-            case PermissionChecker.REQUEST_CODE_LOCATION_PERMISSION:
-                mapsPresenter.initMaps(getContext());
+            case REQUEST_CODE_LOCATION_PERMISSION:
+                if (PermissionChecker.hasLocationPermissionResultGranted(permissions, grantResults)) {
+                    if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
+                        mapsPresenter.init(getContext());
+                    }
+                }
                 break;
             default:
                 // TODO : show pop-up about permissions
@@ -88,12 +109,17 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, IM
     public void onResume() {
         super.onResume();
         mapView.onResume();
+
+        if (!NetworkUtils.isConnectionAvailable(getContext())) {
+            Toast.makeText(getContext(), R.string.text_network_not_available, Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
         mapView.onPause();
+        mapsPresenter.onPause();
     }
 
     @Override

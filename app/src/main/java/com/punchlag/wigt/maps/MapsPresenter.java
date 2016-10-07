@@ -1,17 +1,28 @@
 package com.punchlag.wigt.maps;
 
 import android.content.Context;
-import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationManager;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.punchlag.wigt.utils.PermissionChecker;
 
-public class MapsPresenter {
+public class MapsPresenter implements GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener {
 
     private IMapsView mapsView;
+
+    private Context context;
+    private LocationRequest mLocationRequest;
+    private GoogleApiClient mGoogleApiClient;
     private GoogleMap googleMap;
 
     public MapsPresenter(IMapsView mapsView, GoogleMap googleMap) {
@@ -19,29 +30,59 @@ public class MapsPresenter {
         this.googleMap = googleMap;
     }
 
-    public void initMaps(Context context) {
+    public void init(Context context) {
+        this.context = context;
+        initGoogleApiClient();
+
         try {
             googleMap.setMyLocationEnabled(true);
             googleMap.getUiSettings().setMyLocationButtonEnabled(true);
-            // Getting LocationManager object from System Service LOCATION_SERVICE
-            LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-            // Creating a criteria object to retrieve provider
-            Criteria criteria = new Criteria();
-            // Getting the name of the best provider
-            String provider = locationManager.getBestProvider(criteria, true);
-            // Getting Current Location
-            Location location = locationManager.getLastKnownLocation(provider);
-            if (location != null) {
-                // Getting latitude of the current location
-                double latitude = location.getLatitude();
-                // Getting longitude of the current location
-                double longitude = location.getLongitude();
-                // Creating a LatLng object for the current location
-                LatLng myPosition = new LatLng(latitude, longitude);
-                googleMap.addMarker(new MarkerOptions().position(myPosition).title("Start"));
-            }
         } catch (SecurityException ex) {
             ex.printStackTrace();
         }
+    }
+
+    private synchronized void initGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(context)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+        mGoogleApiClient.connect();
+    }
+
+    public void onPause() {
+        if (mGoogleApiClient != null) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        }
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        if (PermissionChecker.hasLocationPermissionGranted(context)) {
+            try {
+                LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+            } catch (SecurityException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+
     }
 }
