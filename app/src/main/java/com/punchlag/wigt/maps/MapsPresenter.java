@@ -13,10 +13,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.punchlag.wigt.utils.PermissionChecker;
 
 public class MapsPresenter implements GoogleApiClient.ConnectionCallbacks,
@@ -48,7 +45,7 @@ public class MapsPresenter implements GoogleApiClient.ConnectionCallbacks,
         }
     }
 
-    private synchronized void initGoogleApiClient() {
+    private void initGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(context)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
@@ -66,7 +63,8 @@ public class MapsPresenter implements GoogleApiClient.ConnectionCallbacks,
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(5000);
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         if (PermissionChecker.hasLocationPermissionGranted(context)) {
             try {
