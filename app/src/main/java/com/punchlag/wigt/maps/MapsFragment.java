@@ -15,7 +15,7 @@ import com.punchlag.wigt.utils.SystemUtils;
 
 import butterknife.BindView;
 
-public class MapsFragment extends BaseFragment implements IMapsView {
+public class MapsFragment extends BaseFragment implements MapsPresenterView {
 
     public static final String FRAGMENT_TAG = MapsFragment.class.getSimpleName();
 

@@ -24,15 +24,15 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
 
-    private IMapsView mapsView;
+    private MapsPresenterView mapsPresenterView;
 
     private Context context;
     private GoogleApiClient mGoogleApiClient;
     private GoogleMap googleMap;
     private CameraPosition mLastCameraPosition;
 
-    MapsPresenter(IMapsView mapsView) {
-        this.mapsView = mapsView;
+    MapsPresenter(MapsPresenterView mapsPresenterView) {
+        this.mapsPresenterView = mapsPresenterView;
     }
 
     void init(Context context) {
@@ -87,7 +87,7 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.googleMap = googleMap;
-        mapsView.onMapReady(googleMap);
+        mapsPresenterView.onMapReady(googleMap);
     }
 
     @Override
