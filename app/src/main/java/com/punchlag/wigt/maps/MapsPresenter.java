@@ -13,39 +13,36 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.punchlag.wigt.utils.Arguments;
 import com.punchlag.wigt.utils.PermissionChecker;
 
-public class MapsPresenter implements GoogleApiClient.ConnectionCallbacks,
+class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
 
     private IMapsView mapsView;
 
     private Context context;
-    private LocationRequest mLocationRequest;
     private GoogleApiClient mGoogleApiClient;
     private GoogleMap googleMap;
-    private Location mLastLocation;
+    private CameraPosition mLastCameraPosition;
 
-    public MapsPresenter(IMapsView mapsView, GoogleMap googleMap) {
+    MapsPresenter(IMapsView mapsView) {
         this.mapsView = mapsView;
-        this.googleMap = googleMap;
     }
 
-    public void init(Context context) {
+    void init(Context context) {
         this.context = context;
-        initGoogleApiClient();
-
-        try {
-            googleMap.setMyLocationEnabled(true);
-            googleMap.getUiSettings().setMyLocationButtonEnabled(true);
-        } catch (SecurityException ex) {
-            ex.printStackTrace();
-        }
+        initGoogleApiClient(context);
+        initMapSettings();
+        restoreLastCameraPosition();
     }
 
-    private void initGoogleApiClient() {
+    private void initGoogleApiClient(Context context) {
         mGoogleApiClient = new GoogleApiClient.Builder(context)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
@@ -54,15 +51,48 @@ public class MapsPresenter implements GoogleApiClient.ConnectionCallbacks,
         mGoogleApiClient.connect();
     }
 
-    public void onPause() {
+    private void initMapSettings() {
+        try {
+            this.googleMap.setMyLocationEnabled(true);
+            this.googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+        } catch (SecurityException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void restoreLastCameraPosition() {
+        if (mLastCameraPosition != null) {
+            googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(mLastCameraPosition));
+        }
+    }
+
+    void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable(Arguments.ARG_MAP_CAMERA_POSITION, googleMap.getCameraPosition());
+    }
+
+    void onViewStateRestored(Bundle savedInstanceState) {
+        mLastCameraPosition = savedInstanceState.getParcelable(Arguments.ARG_MAP_CAMERA_POSITION);
+    }
+
+    void onPause() {
         if (mGoogleApiClient != null) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         }
     }
 
+    void getMapAsync(MapView mapView) {
+        mapView.getMapAsync(this);
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        this.googleMap = googleMap;
+        mapsView.onMapReady(googleMap);
+    }
+
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        mLocationRequest = new LocationRequest();
+        LocationRequest mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(10000);
         mLocationRequest.setFastestInterval(5000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -87,8 +117,6 @@ public class MapsPresenter implements GoogleApiClient.ConnectionCallbacks,
 
     @Override
     public void onLocationChanged(Location location) {
-        mLastLocation = location;
-
         //Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
 

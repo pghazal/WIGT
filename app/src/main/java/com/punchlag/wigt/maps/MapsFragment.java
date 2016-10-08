@@ -7,7 +7,6 @@ import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.punchlag.wigt.R;
 import com.punchlag.wigt.fragment.BaseFragment;
 import com.punchlag.wigt.utils.NetworkUtils;
@@ -16,7 +15,7 @@ import com.punchlag.wigt.utils.SystemUtils;
 
 import butterknife.BindView;
 
-public class MapsFragment extends BaseFragment implements OnMapReadyCallback, IMapsView {
+public class MapsFragment extends BaseFragment implements IMapsView {
 
     public static final String FRAGMENT_TAG = MapsFragment.class.getSimpleName();
 
@@ -39,21 +38,38 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, IM
         return R.layout.fragment_maps;
     }
 
-    public void configureSubviews(Bundle savedInstanceState) {
-        initMapView(savedInstanceState);
-    }
-
-    private void initMapView(Bundle savedInstanceState) {
-        mapView.onCreate(savedInstanceState);
-        mapView.getMapAsync(this);
-    }
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         if (SystemUtils.isAboveMarshmallow()) {
             checkLocationPermission();
+        }
+
+        mapsPresenter = new MapsPresenter(this);
+    }
+
+    public void configureSubviews(Bundle savedInstanceState) {
+        mapView.onCreate(savedInstanceState);
+        mapsPresenter.getMapAsync(mapView);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        mapView.onSaveInstanceState(outState);
+        if (mapsPresenter != null) {
+            mapsPresenter.onSaveInstanceState(outState);
+        }
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (savedInstanceState != null) {
+            if (mapsPresenter != null) {
+                mapsPresenter.onViewStateRestored(savedInstanceState);
+            }
         }
     }
 
@@ -64,26 +80,13 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, IM
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mapsPresenter = new MapsPresenter(this, googleMap);
-
-        if (SystemUtils.isAboveMarshmallow()) {
-            if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
-                mapsPresenter.init(getContext());
-            }
-        } else {
-            mapsPresenter.init(getContext());
-        }
-    }
-
-    @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case REQUEST_CODE_LOCATION_PERMISSION:
                 if (PermissionChecker.hasLocationPermissionResultGranted(permissions, grantResults)) {
                     if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
-                        mapsPresenter.init(getContext());
+                        mapsPresenter.getMapAsync(mapView);
                     }
                 } else {
                     Toast.makeText(getContext(), R.string.text_location_permission_denied, Toast.LENGTH_SHORT).show();
@@ -96,9 +99,14 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, IM
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        mapView.onSaveInstanceState(outState);
+    public void onMapReady(GoogleMap googleMap) {
+        if (SystemUtils.isAboveMarshmallow()) {
+            if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
+                mapsPresenter.init(getContext());
+            }
+        } else {
+            mapsPresenter.init(getContext());
+        }
     }
 
     @Override
@@ -121,9 +129,7 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, IM
     public void onPause() {
         super.onPause();
         mapView.onPause();
-        if (mapsPresenter != null) {
-            mapsPresenter.onPause();
-        }
+        mapsPresenter.onPause();
     }
 
     @Override
