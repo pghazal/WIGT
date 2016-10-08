@@ -17,11 +17,12 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.punchlag.wigt.utils.Arguments;
 
 class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener {
+        LocationListener, GoogleMap.OnMapClickListener {
 
     private MapsPresenterView mapsPresenterView;
 
@@ -53,6 +54,7 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
         try {
             this.googleMap.setMyLocationEnabled(true);
             this.googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+            this.googleMap.getUiSettings().setMapToolbarEnabled(false);
         } catch (SecurityException ex) {
             ex.printStackTrace();
         }
@@ -62,6 +64,19 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
         if (mLastCameraPosition != null) {
             googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(mLastCameraPosition));
         }
+    }
+
+    @Override
+    public void onMapClick(LatLng latLng) {
+        googleMap.clear();
+
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.position(latLng);
+        markerOptions.title("Lat: " + latLng.latitude + " Long: " + latLng.longitude);
+
+        googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+
+        googleMap.addMarker(markerOptions);
     }
 
     void onSaveInstanceState(Bundle outState) {
@@ -85,6 +100,7 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.googleMap = googleMap;
+        this.googleMap.setOnMapClickListener(this);
         if (mapsPresenterView != null) {
             mapsPresenterView.onMapReady(googleMap);
         }
