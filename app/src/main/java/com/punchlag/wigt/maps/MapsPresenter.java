@@ -18,7 +18,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.punchlag.wigt.utils.Arguments;
-import com.punchlag.wigt.utils.PermissionChecker;
 
 class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -26,17 +25,16 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
 
     private MapsPresenterView mapsPresenterView;
 
-    private Context context;
     private GoogleApiClient mGoogleApiClient;
     private GoogleMap googleMap;
     private CameraPosition mLastCameraPosition;
+    private LocationRequest mLocationRequest;
 
     MapsPresenter(MapsPresenterView mapsPresenterView) {
         this.mapsPresenterView = mapsPresenterView;
     }
 
     void init(Context context) {
-        this.context = context;
         initGoogleApiClient(context);
         initMapSettings();
         restoreLastCameraPosition();
@@ -87,21 +85,28 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.googleMap = googleMap;
-        mapsPresenterView.onMapReady(googleMap);
+        if (mapsPresenterView != null) {
+            mapsPresenterView.onMapReady(googleMap);
+        }
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        LocationRequest mLocationRequest = new LocationRequest();
+        mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(10000);
         mLocationRequest.setFastestInterval(5000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        if (PermissionChecker.hasLocationPermissionGranted(context)) {
-            try {
-                LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-            } catch (SecurityException ex) {
-                ex.printStackTrace();
-            }
+
+        if (mapsPresenterView != null) {
+            mapsPresenterView.onGoogleApiClientConnected();
+        }
+    }
+
+    void requestLocationUpdates() {
+        try {
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        } catch (SecurityException ex) {
+            ex.printStackTrace();
         }
     }
 

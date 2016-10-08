@@ -5,4 +5,6 @@ import com.google.android.gms.maps.GoogleMap;
 public interface MapsPresenterView {
 
     void onMapReady(GoogleMap googleMap);
+
+    void onGoogleApiClientConnected();
 }

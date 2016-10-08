@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.widget.Toast;
 
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.punchlag.wigt.R;
@@ -106,6 +107,13 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
             }
         } else {
             mapsPresenter.init(getContext());
+        }
+    }
+
+    @Override
+    public void onGoogleApiClientConnected() {
+        if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
+            mapsPresenter.requestLocationUpdates();
         }
     }
 
