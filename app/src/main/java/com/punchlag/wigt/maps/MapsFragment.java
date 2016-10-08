@@ -85,6 +85,8 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, IM
                     if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
                         mapsPresenter.init(getContext());
                     }
+                } else {
+                    Toast.makeText(getContext(), R.string.text_location_permission_denied, Toast.LENGTH_SHORT).show();
                 }
                 break;
             default:
@@ -119,7 +121,9 @@ public class MapsFragment extends BaseFragment implements OnMapReadyCallback, IM
     public void onPause() {
         super.onPause();
         mapView.onPause();
-        mapsPresenter.onPause();
+        if (mapsPresenter != null) {
+            mapsPresenter.onPause();
+        }
     }
 
     @Override

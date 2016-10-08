@@ -30,7 +30,6 @@ public class MapsPresenter implements GoogleApiClient.ConnectionCallbacks,
     private GoogleApiClient mGoogleApiClient;
     private GoogleMap googleMap;
     private Location mLastLocation;
-    private Marker mCurrLocationMarker;
 
     public MapsPresenter(IMapsView mapsView, GoogleMap googleMap) {
         this.mapsView = mapsView;
@@ -91,21 +90,13 @@ public class MapsPresenter implements GoogleApiClient.ConnectionCallbacks,
     @Override
     public void onLocationChanged(Location location) {
         mLastLocation = location;
-        if (mCurrLocationMarker != null) {
-            mCurrLocationMarker.remove();
-        }
 
         //Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(latLng);
-        markerOptions.title("Current Position");
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-        mCurrLocationMarker = googleMap.addMarker(markerOptions);
 
         //move map camera
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        googleMap.animateCamera(CameraUpdateFactory.zoomTo(11));
+        googleMap.animateCamera(CameraUpdateFactory.zoomTo(18));
 
         //stop location updates
         if (mGoogleApiClient != null) {
