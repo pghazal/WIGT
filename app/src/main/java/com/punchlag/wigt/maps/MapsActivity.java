@@ -1,6 +1,7 @@
 package com.punchlag.wigt.maps;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.MenuItem;
 import com.punchlag.wigt.R;
 import com.punchlag.wigt.activity.BaseActivity;
@@ -25,7 +26,11 @@ public class MapsActivity extends BaseActivity {
         } else {
             parseArguments(savedInstanceState);
         }
-        addActivityContentFragmentWithTag(MapsFragment.newInstance(), MapsFragment.FRAGMENT_TAG);
+
+        MapsFragment fragment = (MapsFragment) getSupportFragmentManager().findFragmentByTag(MapsFragment.FRAGMENT_TAG);
+        if(fragment == null) {
+            addActivityContentFragmentWithTag(MapsFragment.newInstance(), MapsFragment.FRAGMENT_TAG);
+        }
     }
 
     private void parseArguments(Bundle args) {
