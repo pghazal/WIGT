@@ -5,9 +5,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.widget.Toast;
 
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.model.LatLng;
 import com.punchlag.wigt.R;
 import com.punchlag.wigt.fragment.BaseFragment;
 import com.punchlag.wigt.utils.NetworkUtils;
@@ -114,6 +114,15 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
     public void onGoogleApiClientConnected() {
         if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
             mapsPresenter.requestLocationUpdates();
+        }
+    }
+
+    @Override
+    public void onMapClick(LatLng latLng) {
+        if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
+            mapsPresenter.addGeofences(getContext(), latLng);
+        } else {
+            // TODO show message maybe + request permission ?
         }
     }
 

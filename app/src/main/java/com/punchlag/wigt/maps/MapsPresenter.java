@@ -1,13 +1,20 @@
 package com.punchlag.wigt.maps;
 
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
@@ -17,12 +24,14 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.punchlag.wigt.utils.Arguments;
+
+import java.util.ArrayList;
+import java.util.List;
 
 class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener, GoogleMap.OnMapClickListener {
+        LocationListener, GoogleMap.OnMapClickListener, ResultCallback<Status> {
 
     private MapsPresenterView mapsPresenterView;
 
@@ -30,9 +39,11 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
     private GoogleMap googleMap;
     private CameraPosition mLastCameraPosition;
     private LocationRequest mLocationRequest;
+    private List<Geofence> mGeofenceList;
 
     MapsPresenter(MapsPresenterView mapsPresenterView) {
         this.mapsPresenterView = mapsPresenterView;
+        mGeofenceList = new ArrayList<>();
     }
 
     void init(Context context) {
@@ -64,19 +75,6 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
         if (mLastCameraPosition != null) {
             googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(mLastCameraPosition));
         }
-    }
-
-    @Override
-    public void onMapClick(LatLng latLng) {
-        googleMap.clear();
-
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(latLng);
-        markerOptions.title("Lat: " + latLng.latitude + " Long: " + latLng.longitude);
-
-        googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-
-        googleMap.addMarker(markerOptions);
     }
 
     void onSaveInstanceState(Bundle outState) {
@@ -118,6 +116,13 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
         }
     }
 
+    @Override
+    public void onMapClick(LatLng latLng) {
+        if (mapsPresenterView != null) {
+            mapsPresenterView.onMapClick(latLng);
+        }
+    }
+
     void requestLocationUpdates() {
         try {
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
@@ -149,5 +154,52 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
         if (mGoogleApiClient != null) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         }
+    }
+
+    void addGeofences(Context context, LatLng latLng) {
+        try {
+            googleMap.clear();
+
+       /* MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.position(latLng);
+        markerOptions.title("Lat: " + latLng.latitude + " Long: " + latLng.longitude);
+
+        googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+
+        googleMap.addMarker(markerOptions);*/
+
+            mGeofenceList.clear();
+            mGeofenceList.add(new Geofence.Builder()
+                    .setRequestId("ID1")
+                    .setCircularRegion(latLng.latitude, latLng.longitude, 100)
+                    .setExpirationDuration(50000)
+                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
+                    .build());
+
+            LocationServices.GeofencingApi
+                    .addGeofences(mGoogleApiClient, getGeofencingRequest(), getGeofencePendingIntent(context))
+                    .setResultCallback(this);
+        } catch (SecurityException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private GeofencingRequest getGeofencingRequest() {
+        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
+        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
+        builder.addGeofences(mGeofenceList);
+        return builder.build();
+    }
+
+    private PendingIntent getGeofencePendingIntent(Context context) {
+        Intent intent = new Intent(context, GeofenceTransitionsIntentService.class);
+        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when
+        // calling addGeofences() and removeGeofences().
+        return PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    @Override
+    public void onResult(@NonNull Status status) {
+        Log.d("# onResult #", status.toString());
     }
 }
