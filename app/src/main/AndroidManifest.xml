@@ -38,7 +38,7 @@
             android:name=".maps.MapsActivity"
             android:label="@string/title_activity_maps" />
 
-        <service android:name="maps.GeofenceTransitionsIntentService"/>
+        <service android:name="maps.GeofenceTransitionsIntentService" />
     </application>
 
 </manifest>

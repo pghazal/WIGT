@@ -9,11 +9,16 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
+
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.*;
+import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingRequest;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -27,8 +32,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener,
-        LocationListener, GoogleMap.OnMapClickListener, ResultCallback<Status> {
+        GoogleApiClient.OnConnectionFailedListener, LocationListener, GoogleMap.OnMapClickListener,
+        ResultCallback<Status> {
+
+    private static final String TAG = "MapsPresenter";
 
     private MapsPresenterView mapsPresenterView;
 
@@ -103,6 +110,7 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+        Log.i(TAG, "Connected to GoogleApiClient");
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(10000);
         mLocationRequest.setFastestInterval(5000);
@@ -129,10 +137,12 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
 
     @Override
     public void onConnectionSuspended(int i) {
+        Log.i(TAG, "Connection suspended to GoogleApiClient");
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.i(TAG, "Connection to GoogleApiClient Failed");
     }
 
     @Override
