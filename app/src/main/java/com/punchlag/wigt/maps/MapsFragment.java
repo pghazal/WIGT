@@ -43,7 +43,7 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (SystemUtils.isAboveMarshmallow()) {
+        if (SystemUtils.isAboveApi23()) {
             checkLocationPermission();
         }
 
@@ -101,7 +101,7 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        if (SystemUtils.isAboveMarshmallow()) {
+        if (SystemUtils.isAboveApi23()) {
             if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
                 mapsPresenter.init(getContext());
             }
