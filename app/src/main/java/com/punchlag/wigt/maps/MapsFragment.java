@@ -58,9 +58,7 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         mapView.onSaveInstanceState(outState);
-        if (mapsPresenter != null) {
-            mapsPresenter.onSaveInstanceState(outState);
-        }
+        mapsPresenter.onSaveInstanceState(outState);
         super.onSaveInstanceState(outState);
     }
 
@@ -68,9 +66,7 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         if (savedInstanceState != null) {
-            if (mapsPresenter != null) {
-                mapsPresenter.onViewStateRestored(savedInstanceState);
-            }
+            mapsPresenter.onViewStateRestored(savedInstanceState);
         }
     }
 
