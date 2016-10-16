@@ -26,6 +26,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.punchlag.wigt.model.GeofenceModel;
+import com.punchlag.wigt.storage.StorageManager;
 import com.punchlag.wigt.utils.Arguments;
 
 import java.util.ArrayList;
@@ -34,13 +35,13 @@ import java.util.List;
 import java.util.Map;
 
 class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener, LocationListener, GoogleMap.OnMapClickListener,
-        ResultCallback<Status> {
+        GoogleApiClient.OnConnectionFailedListener, LocationListener, GoogleMap.OnMapClickListener {
 
     private static final String TAG = "MapsPresenter";
 
     private MapsPresenterView mapsPresenterView;
 
+    private StorageManager storageManager;
     private GoogleApiClient googleApiClient;
     private GoogleMap googleMap;
     private CameraPosition lastCameraPosition;
@@ -53,6 +54,9 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
     }
 
     void init(Context context) {
+        storageManager = new StorageManager(context, StorageManager.SHARED_PREFS_GEOFENCES);
+        geofences.putAll(storageManager.loadGeofences());
+
         initGoogleApiClient(context);
         initMapSettings();
         restoreLastCameraPosition();
@@ -171,7 +175,18 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
         try {
             LocationServices.GeofencingApi
                     .addGeofences(googleApiClient, getGeofencingRequest(getGoogleGeofences()),
-                            getGeofencePendingIntent(context)).setResultCallback(this);
+                            getGeofencePendingIntent(context)).setResultCallback(new ResultCallback<Status>() {
+                @Override
+                public void onResult(@NonNull Status status) {
+                    Log.d("# onResult #", status.toString() + " " + status.getStatusMessage());
+
+                    if (status.isSuccess()) {
+                        List<GeofenceModel> geofences = getGeofences();
+                        Log.d("# onResult #", "Count geofences : " + geofences.size());
+                        storageManager.storeGeofence(geofences.get(0).getId(), geofences.get(0));
+                    }
+                }
+            });
         } catch (SecurityException ex) {
             ex.printStackTrace();
         }
@@ -187,11 +202,6 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
     private PendingIntent getGeofencePendingIntent(Context context) {
         Intent intent = new Intent(context, GeofenceTransitionsIntentService.class);
         return PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-    }
-
-    @Override
-    public void onResult(@NonNull Status status) {
-        Log.d("# onResult #", status.toString() + " " + status.getStatusMessage());
     }
 
     private void drawGeofences() {
@@ -210,7 +220,7 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
         }
     }
 
-   private List<Geofence> getGoogleGeofences() {
+    private List<Geofence> getGoogleGeofences() {
         List<Geofence> geofenceList = new ArrayList<>();
         for (Map.Entry<String, GeofenceModel> entry : geofences.entrySet()) {
             geofenceList.add(entry.getValue().build());
