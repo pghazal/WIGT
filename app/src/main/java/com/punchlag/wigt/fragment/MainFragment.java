@@ -1,8 +1,6 @@
 package com.punchlag.wigt.fragment;
 
-import android.annotation.TargetApi;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatSeekBar;
@@ -80,8 +78,7 @@ public class MainFragment extends BaseFragment {
     }
 
     @OnClick(R.id.validationButton)
-    @TargetApi(Build.VERSION_CODES.M)
-    public void validateAlarm() {
+    public void goToMapScreen() {
         boolean alarmActivated = alarmSwitch.isChecked();
 
         Intent intent = new Intent(getContext(), MapsActivity.class);

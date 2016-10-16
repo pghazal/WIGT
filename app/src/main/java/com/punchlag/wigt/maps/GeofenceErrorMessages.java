@@ -17,26 +17,17 @@
 
 package com.punchlag.wigt.maps;
 
-
 import android.content.Context;
 import android.content.res.Resources;
 
 import com.google.android.gms.location.GeofenceStatusCodes;
 import com.punchlag.wigt.R;
 
-/**
- * Geofence error codes mapped to error messages.
- */
 public class GeofenceErrorMessages {
-    /**
-     * Prevents instantiation.
-     */
+
     private GeofenceErrorMessages() {
     }
 
-    /**
-     * Returns the error string for a geofencing error code.
-     */
     public static String getErrorString(Context context, int errorCode) {
         Resources mResources = context.getResources();
         switch (errorCode) {
