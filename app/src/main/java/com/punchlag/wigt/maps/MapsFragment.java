@@ -5,9 +5,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.widget.Toast;
 
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.model.LatLng;
 import com.punchlag.wigt.R;
 import com.punchlag.wigt.fragment.BaseFragment;
 import com.punchlag.wigt.utils.NetworkUtils;
@@ -43,7 +43,7 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (SystemUtils.isAboveMarshmallow()) {
+        if (SystemUtils.isAboveApi23()) {
             checkLocationPermission();
         }
 
@@ -58,9 +58,7 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         mapView.onSaveInstanceState(outState);
-        if (mapsPresenter != null) {
-            mapsPresenter.onSaveInstanceState(outState);
-        }
+        mapsPresenter.onSaveInstanceState(outState);
         super.onSaveInstanceState(outState);
     }
 
@@ -68,9 +66,7 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         if (savedInstanceState != null) {
-            if (mapsPresenter != null) {
-                mapsPresenter.onViewStateRestored(savedInstanceState);
-            }
+            mapsPresenter.onViewStateRestored(savedInstanceState);
         }
     }
 
@@ -100,8 +96,16 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
     }
 
     @Override
+    public void onGoogleApiClientConnected() {
+        if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
+            mapsPresenter.requestLocationUpdates();
+            mapsPresenter.enableGeofencingTracking(getContext());
+        }
+    }
+
+    @Override
     public void onMapReady(GoogleMap googleMap) {
-        if (SystemUtils.isAboveMarshmallow()) {
+        if (SystemUtils.isAboveApi23()) {
             if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
                 mapsPresenter.init(getContext());
             }
@@ -111,9 +115,11 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
     }
 
     @Override
-    public void onGoogleApiClientConnected() {
+    public void onMapClick(LatLng latLng) {
         if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
-            mapsPresenter.requestLocationUpdates();
+            mapsPresenter.addGeofence(getContext(), latLng);
+        } else {
+            // TODO show message maybe + request permission ?
         }
     }
 
