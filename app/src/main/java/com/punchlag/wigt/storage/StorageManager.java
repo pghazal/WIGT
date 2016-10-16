@@ -6,7 +6,8 @@ import android.content.SharedPreferences;
 import com.google.gson.Gson;
 import com.punchlag.wigt.model.GeofenceModel;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class StorageManager {
@@ -32,13 +33,13 @@ public class StorageManager {
         editor.apply();
     }
 
-    public Map<String, GeofenceModel> loadGeofences() {
-        Map<String, GeofenceModel> geofences = new HashMap<>();
+    public List<GeofenceModel> loadGeofences() {
+        List<GeofenceModel> geofences = new ArrayList<>();
         Map<String, ?> keys = sharedPreferences.getAll();
         for (Map.Entry<String, ?> entry : keys.entrySet()) {
             String json = sharedPreferences.getString(entry.getKey(), null);
             GeofenceModel geofenceModel = gson.fromJson(json, GeofenceModel.class);
-            geofences.put(geofenceModel.getId(), geofenceModel);
+            geofences.add(geofenceModel);
         }
 
         return geofences;
