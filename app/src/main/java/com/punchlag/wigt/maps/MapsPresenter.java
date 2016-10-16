@@ -3,7 +3,6 @@ package com.punchlag.wigt.maps;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -26,10 +25,13 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.punchlag.wigt.model.GeofenceModel;
 import com.punchlag.wigt.utils.Arguments;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, LocationListener, GoogleMap.OnMapClickListener,
@@ -43,11 +45,11 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
     private GoogleMap googleMap;
     private CameraPosition lastCameraPosition;
     private LocationRequest locationRequest;
-    private List<Geofence> geofenceList;
+    private Map<String, GeofenceModel> geofences;
 
     MapsPresenter(MapsPresenterView mapsPresenterView) {
         this.mapsPresenterView = mapsPresenterView;
-        geofenceList = new ArrayList<>();
+        this.geofences = new HashMap<>();
     }
 
     void init(Context context) {
@@ -147,9 +149,7 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
 
     @Override
     public void onLocationChanged(Location location) {
-        //Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        //move map camera
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         googleMap.animateCamera(CameraUpdateFactory.zoomTo(18));
         //stop location updates
@@ -159,28 +159,19 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
     }
 
     void addGeofence(Context context, LatLng latLng) {
-        try {
-            googleMap.clear();
+        String id = "ID";
+        int radius = 100;
+        GeofenceModel geofenceModel = new GeofenceModel(id, latLng.latitude, latLng.longitude, radius,
+                Geofence.NEVER_EXPIRE, Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT);
+        geofences.put(id, geofenceModel);
 
-            Geofence geofence = new Geofence.Builder()
-                    .setRequestId("ID1")
-                    .setCircularRegion(latLng.latitude, latLng.longitude, 100)
-                    .setExpirationDuration(12 * 60 * 60 * 1000)
-                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
-                    .build();
-            geofenceList.clear();
-            geofenceList.add(geofence);
-            CircleOptions circleOptions = new CircleOptions()
-                    .center(new LatLng(latLng.latitude, latLng.longitude))
-                    .radius(100)
-                    .fillColor(0x40ff0000)
-                    .strokeColor(Color.TRANSPARENT)
-                    .strokeWidth(2);
-            googleMap.addCircle(circleOptions);
-            googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+        drawGeofences();
+        googleMap.animateCamera(CameraUpdateFactory.newLatLng(geofenceModel.getLatLng()));
+
+        try {
             LocationServices.GeofencingApi
-                    .addGeofences(googleApiClient, getGeofencingRequest(geofenceList), getGeofencePendingIntent(context))
-                    .setResultCallback(this);
+                    .addGeofences(googleApiClient, getGeofencingRequest(getGoogleGeofences()),
+                            getGeofencePendingIntent(context)).setResultCallback(this);
         } catch (SecurityException ex) {
             ex.printStackTrace();
         }
@@ -201,5 +192,37 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
     @Override
     public void onResult(@NonNull Status status) {
         Log.d("# onResult #", status.toString() + " " + status.getStatusMessage());
+    }
+
+    private void drawGeofences() {
+        List<GeofenceModel> geofences = getGeofences();
+
+        googleMap.clear();
+
+        for (GeofenceModel geofence : geofences) {
+            CircleOptions circleOptions = new CircleOptions()
+                    .center(geofence.getLatLng())
+                    .radius(geofence.getRadius())
+                    .fillColor(0x40ff0000)
+                    .strokeColor(0x20ff0000)
+                    .strokeWidth(2);
+            googleMap.addCircle(circleOptions);
+        }
+    }
+
+   private List<Geofence> getGoogleGeofences() {
+        List<Geofence> geofenceList = new ArrayList<>();
+        for (Map.Entry<String, GeofenceModel> entry : geofences.entrySet()) {
+            geofenceList.add(entry.getValue().build());
+        }
+        return geofenceList;
+    }
+
+    private List<GeofenceModel> getGeofences() {
+        List<GeofenceModel> geofenceList = new ArrayList<>();
+        for (Map.Entry<String, GeofenceModel> entry : geofences.entrySet()) {
+            geofenceList.add(entry.getValue());
+        }
+        return geofenceList;
     }
 }

@@ -96,6 +96,13 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
     }
 
     @Override
+    public void onGoogleApiClientConnected() {
+        if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
+            mapsPresenter.requestLocationUpdates();
+        }
+    }
+
+    @Override
     public void onMapReady(GoogleMap googleMap) {
         if (SystemUtils.isAboveApi23()) {
             if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
@@ -103,13 +110,6 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
             }
         } else {
             mapsPresenter.init(getContext());
-        }
-    }
-
-    @Override
-    public void onGoogleApiClientConnected() {
-        if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
-            mapsPresenter.requestLocationUpdates();
         }
     }
 
