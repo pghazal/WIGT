@@ -141,6 +141,17 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
         }
     }
 
+    void enableGeofencingTracking(Context context) {
+        drawGeofences();
+        try {
+            LocationServices.GeofencingApi
+                    .addGeofences(googleApiClient, getGeofencingRequest(getGoogleGeofences()),
+                            getGeofencePendingIntent(context));
+        } catch (SecurityException ex) {
+            ex.printStackTrace();
+        }
+    }
+
     @Override
     public void onConnectionSuspended(int i) {
         Log.i(TAG, "Connection suspended to GoogleApiClient");
