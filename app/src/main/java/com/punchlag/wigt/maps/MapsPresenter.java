@@ -158,7 +158,7 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
         }
     }
 
-    void addGeofences(Context context, LatLng latLng) {
+    void addGeofence(Context context, LatLng latLng) {
         try {
             googleMap.clear();
 
@@ -179,14 +179,14 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
             googleMap.addCircle(circleOptions);
             googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
             LocationServices.GeofencingApi
-                    .addGeofences(googleApiClient, getGeofencingRequest(), getGeofencePendingIntent(context))
+                    .addGeofences(googleApiClient, getGeofencingRequest(geofenceList), getGeofencePendingIntent(context))
                     .setResultCallback(this);
         } catch (SecurityException ex) {
             ex.printStackTrace();
         }
     }
 
-    private GeofencingRequest getGeofencingRequest() {
+    private GeofencingRequest getGeofencingRequest(List<Geofence> geofenceList) {
         GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
         builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
         builder.addGeofences(geofenceList);

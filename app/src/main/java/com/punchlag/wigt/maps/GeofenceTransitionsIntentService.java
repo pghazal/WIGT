@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.support.v4.app.TaskStackBuilder;
@@ -13,6 +14,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofenceStatusCodes;
 import com.google.android.gms.location.GeofencingEvent;
 import com.punchlag.wigt.R;
 import com.punchlag.wigt.activity.MainActivity;
@@ -32,8 +34,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
         if (geofencingEvent.hasError()) {
-            String errorMessage = GeofenceErrorMessages.getErrorString(this,
-                    geofencingEvent.getErrorCode());
+            String errorMessage = getErrorString(this, geofencingEvent.getErrorCode());
             Log.e(TAG, errorMessage);
             return;
         }
@@ -103,6 +104,20 @@ public class GeofenceTransitionsIntentService extends IntentService {
                 return getString(R.string.geofence_transition_exited);
             default:
                 return getString(R.string.unknown_geofence_transition);
+        }
+    }
+
+    private String getErrorString(Context context, int errorCode) {
+        Resources mResources = context.getResources();
+        switch (errorCode) {
+            case GeofenceStatusCodes.GEOFENCE_NOT_AVAILABLE:
+                return mResources.getString(R.string.geofence_not_available);
+            case GeofenceStatusCodes.GEOFENCE_TOO_MANY_GEOFENCES:
+                return mResources.getString(R.string.geofence_too_many_geofences);
+            case GeofenceStatusCodes.GEOFENCE_TOO_MANY_PENDING_INTENTS:
+                return mResources.getString(R.string.geofence_too_many_pending_intents);
+            default:
+                return mResources.getString(R.string.unknown_geofence_error);
         }
     }
 }

@@ -116,7 +116,7 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
     @Override
     public void onMapClick(LatLng latLng) {
         if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
-            mapsPresenter.addGeofences(getContext(), latLng);
+            mapsPresenter.addGeofence(getContext(), latLng);
         } else {
             // TODO show message maybe + request permission ?
         }
