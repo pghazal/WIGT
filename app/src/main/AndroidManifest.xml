@@ -43,7 +43,10 @@
             android:label="@string/title_activity_maps"/>
 
         <service
-            android:name=".maps.GeofenceTransitionsIntentService"/>
+            android:name=".maps.GeofenceTransitionsService"/>
+
+        <service
+            android:name=".maps.LocationUpdateService"/>
     </application>
 
 </manifest>

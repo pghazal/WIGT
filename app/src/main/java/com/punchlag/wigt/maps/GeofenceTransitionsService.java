@@ -22,11 +22,11 @@ import com.punchlag.wigt.activity.MainActivity;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GeofenceTransitionsIntentService extends IntentService {
+public class GeofenceTransitionsService extends IntentService {
 
-    protected static final String TAG = "GeofenceTransitionsIS";
+    protected static final String TAG = "GeofenceTransitionsService";
 
-    public GeofenceTransitionsIntentService() {
+    public GeofenceTransitionsService() {
         super(TAG);
     }
 

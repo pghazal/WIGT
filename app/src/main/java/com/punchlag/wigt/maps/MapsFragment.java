@@ -98,7 +98,7 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
     @Override
     public void onGoogleApiClientConnected() {
         if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
-            mapsPresenter.requestLocationUpdates();
+            mapsPresenter.requestLocationUpdates(getContext());
             mapsPresenter.enableGeofencingTracking(getContext());
         }
     }
@@ -143,7 +143,7 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
     public void onPause() {
         super.onPause();
         mapView.onPause();
-        mapsPresenter.onPause();
+        mapsPresenter.onPause(getContext());
     }
 
     @Override
