@@ -93,7 +93,7 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
 
     void onPause(Context context) {
         if (googleApiClient != null) {
-            LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, getLocationUpdatePendingIntent(context));
+            //LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, getLocationUpdatePendingIntent(context));
         }
     }
 
@@ -138,9 +138,9 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
     void requestLocationUpdates(Context context) {
         try {
             LocationRequest locationRequest = new LocationRequest();
-            locationRequest.setInterval(10000);
-            locationRequest.setFastestInterval(5000);
-            locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+            locationRequest.setInterval(3 * 60 * 1000); // 3 min
+            locationRequest.setFastestInterval(30 * 1000); // 30 sec
+            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
             LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, getLocationUpdatePendingIntent(context));
         } catch (SecurityException ex) {
             ex.printStackTrace();
