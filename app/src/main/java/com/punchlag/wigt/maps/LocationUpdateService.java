@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
+import com.punchlag.wigt.BuildConfig;
 
 
 public class LocationUpdateService extends IntentService {
@@ -30,11 +31,15 @@ public class LocationUpdateService extends IntentService {
         }
 
         public static LocationRequest build(LocationRequestUpdate locationRequestUpdate) {
-            return new LocationRequest()
+            LocationRequest locationRequest = new LocationRequest()
                     .setInterval(locationRequestUpdate.interval)
                     .setFastestInterval(locationRequestUpdate.fastestInterval)
                     .setPriority(locationRequestUpdate.priority)
                     .setSmallestDisplacement(locationRequestUpdate.smallestDisplacement);
+            if (BuildConfig.DEBUG) {
+                locationRequest.setSmallestDisplacement(0);
+            }
+            return locationRequest;
         }
     }
 
