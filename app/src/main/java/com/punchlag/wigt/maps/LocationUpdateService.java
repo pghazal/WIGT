@@ -14,7 +14,7 @@ public class LocationUpdateService extends IntentService {
     private static final String TAG = "LocationUpdateService";
 
     public enum LocationRequestUpdate {
-        LOW(60 * 1000, 30 * 1000, LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY, 30),
+        LOW(30 * 1000, 30 * 1000, LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY, 30),
         HIGH(20 * 1000, 10 * 1000, LocationRequest.PRIORITY_HIGH_ACCURACY, 10);
 
         private final int interval;
