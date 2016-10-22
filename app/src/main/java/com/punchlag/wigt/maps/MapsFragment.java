@@ -98,7 +98,7 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
     @Override
     public void onGoogleApiClientConnected() {
         if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
-            mapsPresenter.requestLocationUpdates(getContext());
+            mapsPresenter.requestLocationUpdates(getContext(), LocationUpdateService.LocationRequestUpdate.HIGH);
             mapsPresenter.enableGeofencingTracking(getContext());
         }
     }
