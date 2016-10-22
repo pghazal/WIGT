@@ -91,8 +91,14 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
         lastCameraPosition = savedInstanceState.getParcelable(Arguments.ARG_MAP_CAMERA_POSITION);
     }
 
+    void onResume(Context context) {
+        if (googleApiClient != null && googleApiClient.isConnected()) {
+            requestLocationUpdates(context, LocationUpdateService.LocationRequestUpdate.HIGH);
+        }
+    }
+
     void onPause(Context context) {
-        if (googleApiClient != null) {
+        if (googleApiClient != null && googleApiClient.isConnected()) {
             requestLocationUpdates(context, LocationUpdateService.LocationRequestUpdate.LOW);
         }
     }
@@ -149,7 +155,7 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
         return PendingIntent.getService(context, 0, service, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    void enableGeofencingTracking(Context context) {
+    void enableGeofenceTracking(Context context) {
         displayGeofences();
         try {
             LocationServices.GeofencingApi

@@ -99,7 +99,7 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
     public void onGoogleApiClientConnected() {
         if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
             mapsPresenter.requestLocationUpdates(getContext(), LocationUpdateService.LocationRequestUpdate.HIGH);
-            mapsPresenter.enableGeofencingTracking(getContext());
+            mapsPresenter.enableGeofenceTracking(getContext());
         }
     }
 
@@ -134,6 +134,10 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
         super.onResume();
         mapView.onResume();
 
+        if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
+            mapsPresenter.onResume(getContext());
+        }
+
         if (!NetworkUtils.isConnectionAvailable(getContext())) {
             Toast.makeText(getContext(), R.string.text_network_not_available, Toast.LENGTH_SHORT).show();
         }
@@ -143,7 +147,9 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
     public void onPause() {
         super.onPause();
         mapView.onPause();
-        mapsPresenter.onPause(getContext());
+        if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
+            mapsPresenter.onPause(getContext());
+        }
     }
 
     @Override
