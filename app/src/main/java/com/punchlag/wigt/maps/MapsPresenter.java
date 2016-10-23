@@ -159,7 +159,7 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
     void enableGeofenceTracking(Context context) {
         List<Geofence> geofences = getGoogleGeofences();
         if (!geofences.isEmpty()) {
-            displayGeofences();
+            drawAllGeofences();
             try {
                 LocationServices.GeofencingApi
                         .addGeofences(googleApiClient, getGeofencingRequest(geofences), getGeofencePendingIntent(context));
@@ -183,10 +183,9 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
             Log.d(TAG, "Geofence Clicked with id : " + geofenceClicked.getId());
             removeGeofence(geofenceClicked);
         } else {
-            addGeofence(context, latLng);
+            GeofenceModel geofenceModel = addGeofence(context, latLng);
+            drawGeofence(geofenceModel);
         }
-
-        displayGeofences();
     }
 
     private boolean hasGeofenceClicked(final LatLng clickedPosition, final GeofenceModel geofenceModel) {
@@ -207,8 +206,8 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
                     .setResultCallback(new ResultCallback<Status>() {
                         @Override
                         public void onResult(@NonNull Status status) {
-                            Log.d("# REMOVE #", status.toString() + " " + status.getStatusMessage());
                             if (status.isSuccess()) {
+                                Log.d(TAG, "REMOVE : " + geofenceModel.toString());
                                 storageManager.removeGeofence(geofenceModel);
                             }
                         }
@@ -218,7 +217,7 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
         }
     }
 
-    private void addGeofence(Context context, LatLng latLng) {
+    private GeofenceModel addGeofence(Context context, LatLng latLng) {
         String id = storageManager.generateId();
         int radius = 100;
         final GeofenceModel geofenceModel = new GeofenceModel(id, latLng.latitude, latLng.longitude, radius,
@@ -234,7 +233,7 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
                 @Override
                 public void onResult(@NonNull Status status) {
                     if (status.isSuccess()) {
-                        Log.d("# onResult #", "Count geofences : " + geofences.size());
+                        Log.d(TAG, "ADD : " + geofenceModel.toString());
                         storageManager.storeGeofence(geofenceModel.getId(), geofenceModel);
                     }
                 }
@@ -242,6 +241,8 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
         } catch (SecurityException ex) {
             ex.printStackTrace();
         }
+
+        return geofenceModel;
     }
 
     private GeofencingRequest getGeofencingRequest(List<Geofence> geofenceList) {
@@ -256,7 +257,7 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
         return PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    private void displayGeofences() {
+    private void drawAllGeofences() {
         googleMap.clear();
 
         for (GeofenceModel geofence : geofences) {
@@ -268,6 +269,16 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
                     .strokeWidth(2);
             googleMap.addCircle(circleOptions);
         }
+    }
+
+    private void drawGeofence(GeofenceModel geofenceModel) {
+        CircleOptions circleOptions = new CircleOptions()
+                .center(geofenceModel.getLatLng())
+                .radius(geofenceModel.getRadius())
+                .fillColor(0x40ff0000)
+                .strokeColor(0x20ff0000)
+                .strokeWidth(2);
+        googleMap.addCircle(circleOptions);
     }
 
     private List<Geofence> getGoogleGeofences() {
