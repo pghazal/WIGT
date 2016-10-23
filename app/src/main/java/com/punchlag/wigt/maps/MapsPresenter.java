@@ -182,6 +182,7 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
         if (geofenceClicked != null) {
             Log.d(TAG, "Geofence Clicked with id : " + geofenceClicked.getId());
             removeGeofence(geofenceClicked);
+            drawAllGeofences();
         } else {
             GeofenceModel geofenceModel = addGeofence(context, latLng);
             drawGeofence(geofenceModel);
