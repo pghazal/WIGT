@@ -261,24 +261,12 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
         googleMap.clear();
 
         for (GeofenceModel geofence : geofences) {
-            CircleOptions circleOptions = new CircleOptions()
-                    .center(geofence.getLatLng())
-                    .radius(geofence.getRadius())
-                    .fillColor(0x40ff0000)
-                    .strokeColor(0x20ff0000)
-                    .strokeWidth(2);
-            googleMap.addCircle(circleOptions);
+            drawGeofence(geofence);
         }
     }
 
     private void drawGeofence(GeofenceModel geofenceModel) {
-        CircleOptions circleOptions = new CircleOptions()
-                .center(geofenceModel.getLatLng())
-                .radius(geofenceModel.getRadius())
-                .fillColor(0x40ff0000)
-                .strokeColor(0x20ff0000)
-                .strokeWidth(2);
-        googleMap.addCircle(circleOptions);
+        googleMap.addCircle(geofenceModel.getCircleOptions());
     }
 
     private List<Geofence> getGoogleGeofences() {
