@@ -9,6 +9,7 @@ import com.punchlag.wigt.model.GeofenceModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class StorageManager {
 
@@ -33,6 +34,16 @@ public class StorageManager {
         editor.apply();
     }
 
+    public void removeGeofence(GeofenceModel value) {
+        remove(value.getId());
+    }
+
+    private void remove(String key) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.remove(key);
+        editor.apply();
+    }
+
     public List<GeofenceModel> loadGeofences() {
         List<GeofenceModel> geofences = new ArrayList<>();
         Map<String, ?> keys = sharedPreferences.getAll();
@@ -43,5 +54,9 @@ public class StorageManager {
         }
 
         return geofences;
+    }
+
+    public String generateId() {
+        return UUID.randomUUID().toString();
     }
 }

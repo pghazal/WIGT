@@ -3,6 +3,7 @@ package com.punchlag.wigt.maps;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -156,24 +157,74 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
     }
 
     void enableGeofenceTracking(Context context) {
+        List<Geofence> geofences = getGoogleGeofences();
+        if (!geofences.isEmpty()) {
+            displayGeofences();
+            try {
+                LocationServices.GeofencingApi
+                        .addGeofences(googleApiClient, getGeofencingRequest(geofences), getGeofencePendingIntent(context));
+            } catch (SecurityException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    void handleMapClick(Context context, final LatLng latLng) {
+        GeofenceModel geofenceClicked = null;
+        for (GeofenceModel geofenceModel : geofences) {
+            if (hasGeofenceClicked(latLng, geofenceModel)) {
+                geofenceClicked = geofenceModel;
+                break;
+            }
+        }
+
+        // Geofence clicked and found
+        if (geofenceClicked != null) {
+            Log.d(TAG, "Geofence Clicked with id : " + geofenceClicked.getId());
+            removeGeofence(geofenceClicked);
+        } else {
+            addGeofence(context, latLng);
+        }
+
         displayGeofences();
+    }
+
+    private boolean hasGeofenceClicked(final LatLng clickedPosition, final GeofenceModel geofenceModel) {
+        LatLng center = geofenceModel.getLatLng();
+        double radius = geofenceModel.getRadius();
+        float[] distance = new float[1];
+        Location.distanceBetween(clickedPosition.latitude, clickedPosition.longitude, center.latitude, center.longitude, distance);
+        return distance[0] < radius;
+    }
+
+    private void removeGeofence(final GeofenceModel geofenceModel) {
         try {
-            LocationServices.GeofencingApi
-                    .addGeofences(googleApiClient, getGeofencingRequest(getGoogleGeofences()), getGeofencePendingIntent(context));
+            List<String> geofenceIdToRemove = new ArrayList<>();
+            geofenceIdToRemove.add(geofenceModel.getId());
+            geofences.remove(geofenceModel);
+
+            LocationServices.GeofencingApi.removeGeofences(googleApiClient, geofenceIdToRemove)
+                    .setResultCallback(new ResultCallback<Status>() {
+                        @Override
+                        public void onResult(@NonNull Status status) {
+                            Log.d("# REMOVE #", status.toString() + " " + status.getStatusMessage());
+                            if (status.isSuccess()) {
+                                storageManager.removeGeofence(geofenceModel);
+                            }
+                        }
+                    });
         } catch (SecurityException ex) {
             ex.printStackTrace();
         }
     }
 
-    void addGeofence(Context context, LatLng latLng) {
-        String id = "ID";
+    private void addGeofence(Context context, LatLng latLng) {
+        String id = storageManager.generateId();
         int radius = 100;
-        GeofenceModel geofenceModel = new GeofenceModel(id, latLng.latitude, latLng.longitude, radius,
+        final GeofenceModel geofenceModel = new GeofenceModel(id, latLng.latitude, latLng.longitude, radius,
                 Geofence.NEVER_EXPIRE, Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT);
-        geofences.clear();
-        geofences.add(geofenceModel);
 
-        displayGeofences();
+        geofences.add(geofenceModel);
         googleMap.animateCamera(CameraUpdateFactory.newLatLng(geofenceModel.getLatLng()));
 
         try {
@@ -182,11 +233,9 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
                             getGeofencePendingIntent(context)).setResultCallback(new ResultCallback<Status>() {
                 @Override
                 public void onResult(@NonNull Status status) {
-                    Log.d("# onResult #", status.toString() + " " + status.getStatusMessage());
-
                     if (status.isSuccess()) {
                         Log.d("# onResult #", "Count geofences : " + geofences.size());
-                        storageManager.storeGeofence(geofences.get(0).getId(), geofences.get(0));
+                        storageManager.storeGeofence(geofenceModel.getId(), geofenceModel);
                     }
                 }
             });
