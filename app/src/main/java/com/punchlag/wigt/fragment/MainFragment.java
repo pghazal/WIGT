@@ -17,7 +17,7 @@ import butterknife.OnClick;
 
 public class MainFragment extends BaseFragment {
 
-    public static final String FRAGMENT_TAG = MainFragment.class.getSimpleName();
+    public static final String FRAGMENT_TAG = "MainFragment";
 
     @BindView(R.id.alarmSwitch)
     SwitchCompat alarmSwitch;

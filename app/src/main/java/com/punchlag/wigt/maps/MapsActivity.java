@@ -7,7 +7,6 @@ import android.view.MenuItem;
 
 import com.punchlag.wigt.R;
 import com.punchlag.wigt.activity.BaseActivity;
-import com.punchlag.wigt.fragment.MainFragment;
 
 public class MapsActivity extends BaseActivity {
 
@@ -57,15 +56,15 @@ public class MapsActivity extends BaseActivity {
     }
 
     private void switchDisplayMode(boolean isMapModeEnabled) {
-        if(isMapModeEnabled) {
+        if (isMapModeEnabled) {
             MapsFragment fragment = (MapsFragment) getSupportFragmentManager().findFragmentByTag(MapsFragment.FRAGMENT_TAG);
-            if(fragment == null) {
+            if (fragment == null) {
                 replaceActivityContentFragmentWithTag(MapsFragment.newInstance(), MapsFragment.FRAGMENT_TAG);
             }
         } else {
-            MainFragment fragment = (MainFragment) getSupportFragmentManager().findFragmentByTag(MainFragment.FRAGMENT_TAG);
+            GeofencesListFragment fragment = (GeofencesListFragment) getSupportFragmentManager().findFragmentByTag(GeofencesListFragment.FRAGMENT_TAG);
             if (fragment == null) {
-                replaceActivityContentFragmentWithTag(MainFragment.newInstance(), MainFragment.FRAGMENT_TAG);
+                replaceActivityContentFragmentWithTag(GeofencesListFragment.newInstance(), GeofencesListFragment.FRAGMENT_TAG);
             }
         }
     }

@@ -18,7 +18,7 @@ import butterknife.BindView;
 
 public class MapsFragment extends BaseFragment implements MapsPresenterView {
 
-    public static final String FRAGMENT_TAG = MapsFragment.class.getSimpleName();
+    public static final String FRAGMENT_TAG = "MapsFragment";
 
     private static final int REQUEST_CODE_LOCATION_PERMISSION = 10;
 
@@ -28,10 +28,10 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
     private MapsPresenter mapsPresenter;
 
     public static MapsFragment newInstance() {
-        MapsFragment mapFragment = new MapsFragment();
+        MapsFragment fragment = new MapsFragment();
         Bundle args = new Bundle();
-        mapFragment.setArguments(args);
-        return mapFragment;
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
