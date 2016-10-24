@@ -22,7 +22,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.punchlag.wigt.model.GeofenceModel;
 import com.punchlag.wigt.storage.StorageManager;
@@ -92,15 +91,20 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
         lastCameraPosition = savedInstanceState.getParcelable(Arguments.ARG_MAP_CAMERA_POSITION);
     }
 
-    void onResume(Context context) {
-        if (googleApiClient != null && googleApiClient.isConnected()) {
-            requestLocationUpdates(context, LocationUpdateService.LocationRequestUpdate.HIGH);
+    void onResume() {
+        if (googleApiClient != null && !googleApiClient.isConnecting() && !googleApiClient.isConnected()) {
+            googleApiClient.connect();
         }
     }
 
     void onPause(Context context) {
         if (googleApiClient != null && googleApiClient.isConnected()) {
-            requestLocationUpdates(context, LocationUpdateService.LocationRequestUpdate.LOW);
+            requestLocationUpdates(context, LocationUpdateService.LocationRequestUpdate.LOW, new ResultCallback<Status>() {
+                @Override
+                public void onResult(@NonNull Status status) {
+                    googleApiClient.disconnect();
+                }
+            });
         }
     }
 
@@ -142,10 +146,11 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
         }
     }
 
-    void requestLocationUpdates(Context context, LocationUpdateService.LocationRequestUpdate locationRequestUpdate) {
+    void requestLocationUpdates(Context context, LocationUpdateService.LocationRequestUpdate locationRequestUpdate, ResultCallback<Status> resultCallback) {
         try {
             LocationRequest locationRequest = LocationUpdateService.LocationRequestUpdate.build(locationRequestUpdate);
-            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, getLocationUpdatePendingIntent(context));
+            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, getLocationUpdatePendingIntent(context))
+                    .setResultCallback(resultCallback);
         } catch (SecurityException ex) {
             ex.printStackTrace();
         }

@@ -7,11 +7,8 @@ import android.view.MenuItem;
 
 import com.punchlag.wigt.R;
 import com.punchlag.wigt.activity.BaseActivity;
-import com.punchlag.wigt.utils.Arguments;
 
 public class MapsActivity extends BaseActivity {
-
-    private boolean mAlarmActivated;
 
     @Override
     public int getLayoutResourceId() {
@@ -35,9 +32,7 @@ public class MapsActivity extends BaseActivity {
     }
 
     private void parseArguments(Bundle args) {
-        if (args != null) {
-            mAlarmActivated = args.getBoolean(Arguments.ARG_ALARM_ACTIVATED);
-        }
+
     }
 
     @Override
