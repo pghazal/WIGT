@@ -24,7 +24,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.punchlag.wigt.model.GeofenceModel;
-import com.punchlag.wigt.storage.StorageManager;
+import com.punchlag.wigt.storage.GeofenceStorage;
 import com.punchlag.wigt.utils.Arguments;
 
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
 
     private MapsPresenterView mapsPresenterView;
 
-    private StorageManager storageManager;
+    private GeofenceStorage geofenceStorage;
     private GoogleApiClient googleApiClient;
     private GoogleMap googleMap;
 
@@ -50,8 +50,8 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
     }
 
     void init(Context context) {
-        storageManager = new StorageManager(context, StorageManager.SHARED_PREFS_GEOFENCES);
-        geofences.addAll(storageManager.loadGeofences());
+        geofenceStorage = new GeofenceStorage(context);
+        geofences.addAll(geofenceStorage.loadGeofences());
 
         initGoogleApiClient(context);
         initMapSettings();
@@ -226,7 +226,7 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
                             public void onResult(@NonNull Status status) {
                                 if (status.isSuccess()) {
                                     Log.d(TAG, "REMOVE : " + geofenceModel.toString());
-                                    storageManager.removeGeofence(geofenceModel);
+                                    geofenceStorage.removeGeofence(geofenceModel);
                                 }
                             }
                         });
@@ -237,7 +237,7 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
     }
 
     private GeofenceModel addGeofence(Context context, LatLng latLng) {
-        String id = storageManager.generateId();
+        String id = geofenceStorage.generateId();
         int radius = 100;
         final GeofenceModel geofenceModel = new GeofenceModel(id, latLng.latitude, latLng.longitude, radius,
                 Geofence.NEVER_EXPIRE, Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT);
@@ -254,7 +254,7 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
                     public void onResult(@NonNull Status status) {
                         if (status.isSuccess()) {
                             Log.d(TAG, "ADD : " + geofenceModel.toString());
-                            storageManager.storeGeofence(geofenceModel.getId(), geofenceModel);
+                            geofenceStorage.storeGeofence(geofenceModel.getId(), geofenceModel);
                         }
                     }
                 });

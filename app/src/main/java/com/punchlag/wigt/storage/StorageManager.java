@@ -4,26 +4,25 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
-import com.punchlag.wigt.model.GeofenceModel;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class StorageManager {
-
-    public static final String SHARED_PREFS_GEOFENCES = "SHARED_PREFS_GEOFENCES";
+public abstract class StorageManager<T> {
 
     private Gson gson;
     private SharedPreferences sharedPreferences;
 
-    public StorageManager(Context context, String sharedPrefsName) {
+    protected abstract String getSharedPrefsName();
+
+    StorageManager(Context context) {
         gson = new Gson();
-        sharedPreferences = context.getSharedPreferences(sharedPrefsName, Context.MODE_PRIVATE);
+        sharedPreferences = context.getSharedPreferences(getSharedPrefsName(), Context.MODE_PRIVATE);
     }
 
-    public void storeGeofence(String key, GeofenceModel value) {
+    void store(String key, T value) {
         String json = gson.toJson(value);
         store(key, json);
     }
@@ -34,29 +33,29 @@ public class StorageManager {
         editor.apply();
     }
 
-    public void removeGeofence(GeofenceModel value) {
-        remove(value.getId());
-    }
-
-    private void remove(String key) {
+    void remove(String key) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.remove(key);
         editor.apply();
     }
 
-    public List<GeofenceModel> loadGeofences() {
-        List<GeofenceModel> geofences = new ArrayList<>();
+    T get(String key, Class<T> clazz) {
+        String json = sharedPreferences.getString(key, null);
+        return gson.fromJson(json, clazz);
+    }
+
+    List<T> getList(Class<T> clazz) {
+        List<T> list = new ArrayList<>();
         Map<String, ?> keys = sharedPreferences.getAll();
         for (Map.Entry<String, ?> entry : keys.entrySet()) {
-            String json = sharedPreferences.getString(entry.getKey(), null);
-            GeofenceModel geofenceModel = gson.fromJson(json, GeofenceModel.class);
-            geofences.add(geofenceModel);
+            T data = get(entry.getKey(), clazz);
+            list.add(data);
         }
 
-        return geofences;
+        return list;
     }
 
     public String generateId() {
-        return UUID.randomUUID().toString();
+        return getSharedPrefsName() + "_" + UUID.randomUUID().toString();
     }
 }
