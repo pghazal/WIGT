@@ -67,6 +67,13 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
         googleApiClient.connect();
     }
 
+    private boolean isGoogleApiClientAvailable() {
+        if (googleApiClient != null && !googleApiClient.isConnecting() && googleApiClient.isConnected()) {
+            return true;
+        }
+        return false;
+    }
+
     private void initMapSettings() {
         try {
             this.googleMap.setMyLocationEnabled(true);
@@ -98,7 +105,7 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
     }
 
     void onPause(Context context) {
-        if (googleApiClient != null && googleApiClient.isConnected()) {
+        if (isGoogleApiClientAvailable()) {
             requestLocationUpdates(context, LocationUpdateService.LocationRequestUpdate.LOW, new ResultCallback<Status>() {
                 @Override
                 public void onResult(@NonNull Status status) {
@@ -148,9 +155,11 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
 
     void requestLocationUpdates(Context context, LocationUpdateService.LocationRequestUpdate locationRequestUpdate, ResultCallback<Status> resultCallback) {
         try {
-            LocationRequest locationRequest = LocationUpdateService.LocationRequestUpdate.build(locationRequestUpdate);
-            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, getLocationUpdatePendingIntent(context))
-                    .setResultCallback(resultCallback);
+            if (isGoogleApiClientAvailable()) {
+                LocationRequest locationRequest = LocationUpdateService.LocationRequestUpdate.build(locationRequestUpdate);
+                LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, getLocationUpdatePendingIntent(context))
+                        .setResultCallback(resultCallback);
+            }
         } catch (SecurityException ex) {
             ex.printStackTrace();
         }
@@ -166,8 +175,10 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
         if (!geofences.isEmpty()) {
             drawAllGeofences();
             try {
-                LocationServices.GeofencingApi
-                        .addGeofences(googleApiClient, getGeofencingRequest(geofences), getGeofencePendingIntent(context));
+                if (isGoogleApiClientAvailable()) {
+                    LocationServices.GeofencingApi
+                            .addGeofences(googleApiClient, getGeofencingRequest(geofences), getGeofencePendingIntent(context));
+                }
             } catch (SecurityException ex) {
                 ex.printStackTrace();
             }
@@ -208,16 +219,18 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
             geofenceIdToRemove.add(geofenceModel.getId());
             geofences.remove(geofenceModel);
 
-            LocationServices.GeofencingApi.removeGeofences(googleApiClient, geofenceIdToRemove)
-                    .setResultCallback(new ResultCallback<Status>() {
-                        @Override
-                        public void onResult(@NonNull Status status) {
-                            if (status.isSuccess()) {
-                                Log.d(TAG, "REMOVE : " + geofenceModel.toString());
-                                storageManager.removeGeofence(geofenceModel);
+            if (isGoogleApiClientAvailable()) {
+                LocationServices.GeofencingApi.removeGeofences(googleApiClient, geofenceIdToRemove)
+                        .setResultCallback(new ResultCallback<Status>() {
+                            @Override
+                            public void onResult(@NonNull Status status) {
+                                if (status.isSuccess()) {
+                                    Log.d(TAG, "REMOVE : " + geofenceModel.toString());
+                                    storageManager.removeGeofence(geofenceModel);
+                                }
                             }
-                        }
-                    });
+                        });
+            }
         } catch (SecurityException ex) {
             ex.printStackTrace();
         }
@@ -233,17 +246,19 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
         googleMap.animateCamera(CameraUpdateFactory.newLatLng(geofenceModel.getLatLng()));
 
         try {
-            LocationServices.GeofencingApi
-                    .addGeofences(googleApiClient, getGeofencingRequest(getGoogleGeofences()),
-                            getGeofencePendingIntent(context)).setResultCallback(new ResultCallback<Status>() {
-                @Override
-                public void onResult(@NonNull Status status) {
-                    if (status.isSuccess()) {
-                        Log.d(TAG, "ADD : " + geofenceModel.toString());
-                        storageManager.storeGeofence(geofenceModel.getId(), geofenceModel);
+            if (isGoogleApiClientAvailable()) {
+                LocationServices.GeofencingApi
+                        .addGeofences(googleApiClient, getGeofencingRequest(getGoogleGeofences()),
+                                getGeofencePendingIntent(context)).setResultCallback(new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(@NonNull Status status) {
+                        if (status.isSuccess()) {
+                            Log.d(TAG, "ADD : " + geofenceModel.toString());
+                            storageManager.storeGeofence(geofenceModel.getId(), geofenceModel);
+                        }
                     }
-                }
-            });
+                });
+            }
         } catch (SecurityException ex) {
             ex.printStackTrace();
         }
