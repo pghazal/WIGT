@@ -7,8 +7,11 @@ import android.view.MenuItem;
 
 import com.punchlag.wigt.R;
 import com.punchlag.wigt.activity.BaseActivity;
+import com.punchlag.wigt.fragment.MainFragment;
 
 public class MapsActivity extends BaseActivity {
+
+    private boolean isMapModeEnabled = true;
 
     @Override
     public int getLayoutResourceId() {
@@ -25,10 +28,7 @@ public class MapsActivity extends BaseActivity {
             parseArguments(savedInstanceState);
         }
 
-        MapsFragment fragment = (MapsFragment) getSupportFragmentManager().findFragmentByTag(MapsFragment.FRAGMENT_TAG);
-        if(fragment == null) {
-            addActivityContentFragmentWithTag(MapsFragment.newInstance(), MapsFragment.FRAGMENT_TAG);
-        }
+        switchDisplayMode(isMapModeEnabled);
     }
 
     private void parseArguments(Bundle args) {
@@ -49,8 +49,24 @@ public class MapsActivity extends BaseActivity {
                 onBackPressed();
                 return true;
             case R.id.action_switch_view:
+                isMapModeEnabled = !isMapModeEnabled;
+                switchDisplayMode(isMapModeEnabled);
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void switchDisplayMode(boolean isMapModeEnabled) {
+        if(isMapModeEnabled) {
+            MapsFragment fragment = (MapsFragment) getSupportFragmentManager().findFragmentByTag(MapsFragment.FRAGMENT_TAG);
+            if(fragment == null) {
+                replaceActivityContentFragmentWithTag(MapsFragment.newInstance(), MapsFragment.FRAGMENT_TAG);
+            }
+        } else {
+            MainFragment fragment = (MainFragment) getSupportFragmentManager().findFragmentByTag(MainFragment.FRAGMENT_TAG);
+            if (fragment == null) {
+                replaceActivityContentFragmentWithTag(MainFragment.newInstance(), MainFragment.FRAGMENT_TAG);
+            }
+        }
     }
 }

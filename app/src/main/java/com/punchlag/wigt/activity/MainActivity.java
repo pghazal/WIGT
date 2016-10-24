@@ -18,7 +18,7 @@ public class MainActivity extends BaseActivity {
 
         MainFragment fragment = (MainFragment) getSupportFragmentManager().findFragmentByTag(MainFragment.FRAGMENT_TAG);
         if (fragment == null) {
-            addActivityContentFragmentWithTag(MainFragment.newInstance(), MainFragment.FRAGMENT_TAG);
+            replaceActivityContentFragmentWithTag(MainFragment.newInstance(), MainFragment.FRAGMENT_TAG);
         }
     }
 }

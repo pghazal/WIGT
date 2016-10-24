@@ -45,7 +45,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
     }
 
-    protected boolean addActivityContentFragmentWithTag(Fragment fragment, String tag) {
+    protected boolean replaceActivityContentFragmentWithTag(Fragment fragment, String tag) {
         if (fragment == null) {
             return false;
         }
