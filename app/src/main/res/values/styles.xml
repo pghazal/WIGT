@@ -8,4 +8,12 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="CardStyle">
+        <item name="android:layout_marginEnd">@dimen/base_horizontal_margin</item>
+        <item name="android:layout_marginStart">@dimen/base_horizontal_margin</item>
+        <item name="android:layout_marginTop">@dimen/base_vertical_margin</item>
+        <item name="android:background">@drawable/selector_background_item_geofence</item>
+        <item name="android:padding">@dimen/base_vertical_margin</item>
+    </style>
+
 </resources>

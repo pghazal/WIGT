@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
 
     <android.support.v7.widget.SwitchCompat
         android:id="@+id/alarmSwitch"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/base_item_height"
+        android:layout_height="wrap_content"
         android:freezesText="true"
         android:gravity="center"
-        android:text="Wake me up" />
+        android:text="Wake me up"/>
 
     <android.support.v7.widget.AppCompatSeekBar
         android:id="@+id/seekBar"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/base_item_height"
+        android:layout_height="wrap_content"
         android:max="10"
-        android:progress="5" />
+        android:progress="5"/>
 
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/seekBarValueText"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/base_item_height"
+        android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Value" />
+        android:text="Value"/>
 
     <android.support.v7.widget.AppCompatButton
         android:id="@+id/validationButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/base_vertical_margin"
-        android:text="@string/text_validate" />
+        android:text="@string/text_validate"/>
 </LinearLayout>
