@@ -2,4 +2,5 @@
 
     <dimen name="base_vertical_margin">12dp</dimen>
     <dimen name="base_item_height">40dp</dimen>
+    <dimen name="switch_height">32dp</dimen>
 </resources>
