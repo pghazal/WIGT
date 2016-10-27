@@ -1,25 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              tools:ignore="RtlHardcoded"
+              tools:showIn="@layout/activity_maps">
 
     <RadioGroup
-        android:id="@+id/switchView"
+        android:id="@+id/switchRadioGroup"
         android:layout_width="match_parent"
         android:layout_height="@dimen/switch_height"
+        android:layout_gravity="center_horizontal"
         android:layout_marginBottom="@dimen/base_vertical_margin"
         android:layout_marginLeft="80dp"
         android:layout_marginRight="80dp"
-        android:gravity="center"
-        android:layout_gravity="center_horizontal"
         android:layout_marginTop="@dimen/base_vertical_margin"
         android:background="@drawable/switch_border"
-        android:checkedButton="@+id/offer"
+        android:checkedButton="@+id/mapRadioButton"
+        android:gravity="center"
         android:orientation="horizontal">
 
         <RadioButton
-            android:id="@+id/search"
+            android:id="@+id/mapRadioButton"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginBottom="1dp"
@@ -30,10 +33,11 @@
             android:button="@null"
             android:gravity="center"
             android:text="Carte"
-            android:textColor="@android:color/black" />
+            android:textColor="@android:color/black"
+            />
 
         <RadioButton
-            android:id="@+id/offer"
+            android:id="@+id/listRadioButton"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginBottom="1dp"
@@ -44,7 +48,7 @@
             android:button="@null"
             android:gravity="center"
             android:text="Liste"
-            android:textColor="@android:color/black" />
+            android:textColor="@android:color/black"/>
     </RadioGroup>
 
 </LinearLayout>
