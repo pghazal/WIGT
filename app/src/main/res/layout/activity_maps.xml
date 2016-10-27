@@ -3,16 +3,53 @@
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                tools:context="com.punchlag.wigt.maps.MapsActivity">
+                tools:context="com.punchlag.wigt.maps.MapsActivity"
+                tools:ignore="RtlHardcoded">
 
     <include layout="@layout/activity_base"/>
 
     <include
+        android:id="@+id/switchViewContainer"
         layout="@layout/layout_switch_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/settingsButton"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="@dimen/base_vertical_margin"
-        android:layout_marginTop="@dimen/base_vertical_margin"/>
+        android:layout_marginTop="@dimen/switch_vertical_margin"/>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/settingsButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="@dimen/settings_button_horizontal_margin"
+        android:layout_marginTop="@dimen/settings_button_vertical_margin"
+        android:clickable="true"
+        app:fabSize="normal"
+        app:srcCompat="@drawable/common_google_signin_btn_icon_dark"/>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/myLocationButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/addButton"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="@dimen/settings_button_vertical_margin"
+        android:layout_marginRight="@dimen/settings_button_horizontal_margin"
+        android:clickable="true"
+        app:fabSize="normal"
+        app:srcCompat="@drawable/common_google_signin_btn_icon_dark"/>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/addButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="@dimen/settings_button_vertical_margin"
+        android:layout_marginRight="@dimen/settings_button_horizontal_margin"
+        android:clickable="true"
+        app:fabSize="normal"
+        app:srcCompat="@drawable/common_google_signin_btn_icon_dark"/>
 
 </RelativeLayout>
