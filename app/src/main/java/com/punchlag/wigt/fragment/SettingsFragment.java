@@ -15,9 +15,9 @@ import com.punchlag.wigt.utils.Arguments;
 import butterknife.BindView;
 import butterknife.OnClick;
 
-public class MainFragment extends BaseFragment {
+public class SettingsFragment extends BaseFragment {
 
-    public static final String FRAGMENT_TAG = "MainFragment";
+    public static final String FRAGMENT_TAG = "SettingsFragment";
 
     @BindView(R.id.alarmSwitch)
     SwitchCompat alarmSwitch;
@@ -31,8 +31,8 @@ public class MainFragment extends BaseFragment {
     @BindView(R.id.seekBar)
     AppCompatSeekBar seekBar;
 
-    public static MainFragment newInstance() {
-        MainFragment fragment = new MainFragment();
+    public static SettingsFragment newInstance() {
+        SettingsFragment fragment = new SettingsFragment();
         Bundle arguments = new Bundle();
         fragment.setArguments(arguments);
         return fragment;
@@ -40,7 +40,7 @@ public class MainFragment extends BaseFragment {
 
     @Override
     public int getLayoutResourceId() {
-        return R.layout.fragment_main;
+        return R.layout.fragment_settings;
     }
 
     @Override

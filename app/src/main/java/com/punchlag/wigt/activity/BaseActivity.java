@@ -55,4 +55,8 @@ public abstract class BaseActivity extends AppCompatActivity {
                 .commit();
         return true;
     }
+
+    public Toolbar getToolbar() {
+        return toolbar;
+    }
 }

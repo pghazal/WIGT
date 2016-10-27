@@ -17,7 +17,6 @@ import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofenceStatusCodes;
 import com.google.android.gms.location.GeofencingEvent;
 import com.punchlag.wigt.R;
-import com.punchlag.wigt.activity.MainActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,10 +69,10 @@ public class GeofenceTransitionsService extends IntentService {
     }
 
     private void sendNotification(String notificationDetails) {
-        Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
+        Intent notificationIntent = new Intent(getApplicationContext(), MapsActivity.class);
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        stackBuilder.addParentStack(MainActivity.class);
+        stackBuilder.addParentStack(MapsActivity.class);
         stackBuilder.addNextIntent(notificationIntent);
 
         PendingIntent notificationPendingIntent =
