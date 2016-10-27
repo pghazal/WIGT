@@ -13,8 +13,8 @@
         android:layout_height="@dimen/switch_height"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="@dimen/base_vertical_margin"
-        android:layout_marginLeft="80dp"
-        android:layout_marginRight="80dp"
+        android:layout_marginLeft="@dimen/switch_horizontal_margin"
+        android:layout_marginRight="@dimen/switch_horizontal_margin"
         android:layout_marginTop="@dimen/base_vertical_margin"
         android:background="@drawable/switch_border"
         android:checkedButton="@+id/mapRadioButton"
@@ -32,9 +32,8 @@
             android:background="@drawable/selector_switch"
             android:button="@null"
             android:gravity="center"
-            android:text="Carte"
-            android:textColor="@android:color/black"
-            />
+            android:text="@string/text_switch_map"
+            android:textColor="@android:color/black"/>
 
         <RadioButton
             android:id="@+id/listRadioButton"
@@ -47,7 +46,7 @@
             android:background="@drawable/selector_switch"
             android:button="@null"
             android:gravity="center"
-            android:text="Liste"
+            android:text="@string/text_switch_list"
             android:textColor="@android:color/black"/>
     </RadioGroup>
 

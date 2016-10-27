@@ -4,4 +4,5 @@
     <dimen name="corner_radius">6dp</dimen>
     <dimen name="base_item_height">40dp</dimen>
     <dimen name="switch_height">32dp</dimen>
+    <dimen name="switch_horizontal_margin">100dp</dimen>
 </resources>
