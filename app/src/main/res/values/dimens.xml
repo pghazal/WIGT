@@ -5,4 +5,5 @@
     <dimen name="base_item_height">40dp</dimen>
     <dimen name="switch_height">32dp</dimen>
     <dimen name="switch_horizontal_margin">100dp</dimen>
+    <dimen name="switch_width">180dp</dimen>
 </resources>

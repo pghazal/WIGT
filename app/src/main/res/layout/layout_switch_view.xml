@@ -1,21 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:tools="http://schemas.android.com/tools"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
               android:orientation="vertical"
               tools:ignore="RtlHardcoded"
               tools:showIn="@layout/activity_maps">
 
     <RadioGroup
         android:id="@+id/switchRadioGroup"
-        android:layout_width="match_parent"
+        android:layout_width="@dimen/switch_width"
         android:layout_height="@dimen/switch_height"
         android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="@dimen/base_vertical_margin"
-        android:layout_marginLeft="@dimen/switch_horizontal_margin"
-        android:layout_marginRight="@dimen/switch_horizontal_margin"
-        android:layout_marginTop="@dimen/base_vertical_margin"
         android:background="@drawable/switch_border"
         android:checkedButton="@+id/mapRadioButton"
         android:gravity="center"
