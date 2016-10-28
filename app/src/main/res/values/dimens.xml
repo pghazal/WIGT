@@ -8,7 +8,7 @@
     <dimen name="switch_vertical_margin">24dp</dimen>
     <dimen name="switch_horizontal_margin">100dp</dimen>
 
-    <dimen name="settings_button_vertical_margin">12dp</dimen>
-    <dimen name="settings_button_horizontal_margin">12dp</dimen>
-    <dimen name="list_geofences_margin_top">60dp</dimen>
+    <dimen name="floating_button_vertical_margin">12dp</dimen>
+    <dimen name="floating_button_horizontal_margin">12dp</dimen>
+    <dimen name="list_geofences_margin_top">70dp</dimen>
 </resources>

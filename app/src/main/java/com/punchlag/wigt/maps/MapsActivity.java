@@ -26,7 +26,6 @@ public class MapsActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        enableNavigationUp();
         if (savedInstanceState == null) {
             parseArguments(getIntent().getExtras());
         } else {
