@@ -10,5 +10,5 @@
 
     <dimen name="floating_button_vertical_margin">12dp</dimen>
     <dimen name="floating_button_horizontal_margin">12dp</dimen>
-    <dimen name="list_geofences_margin_top">70dp</dimen>
+    <dimen name="margin_settings_button">0dp</dimen>
 </resources>

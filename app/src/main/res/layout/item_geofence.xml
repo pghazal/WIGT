@@ -17,18 +17,21 @@
             android:id="@+id/geofenceIdTv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
             tools:text="Geofence Name"/>
 
         <TextView
             android:id="@+id/latitudeTv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
             tools:text="latitude"/>
 
         <TextView
             android:id="@+id/longitudeTv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
             tools:text="longitude"/>
     </LinearLayout>
 
