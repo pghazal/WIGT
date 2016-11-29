@@ -21,11 +21,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.punchlag.wigt.model.GeofenceModel;
 import com.punchlag.wigt.storage.GeofenceStorage;
-import com.punchlag.wigt.utils.Arguments;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,13 +33,14 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
 
     private static final String TAG = "MapsPresenter";
 
+    private static final float MY_LOCATION_ZOOM = 18.0f;
+
     private MapsPresenterView mapsPresenterView;
 
     private GeofenceStorage geofenceStorage;
     private GoogleApiClient googleApiClient;
     private GoogleMap googleMap;
 
-    private CameraPosition lastCameraPosition;
     private List<GeofenceModel> geofences;
 
     MapsPresenter(MapsPresenterView mapsPresenterView) {
@@ -55,7 +54,6 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
 
         initGoogleApiClient(context);
         initMapSettings();
-        restoreLastCameraPosition();
     }
 
     private synchronized void initGoogleApiClient(Context context) {
@@ -77,25 +75,17 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
     private void initMapSettings() {
         try {
             this.googleMap.setMyLocationEnabled(true);
-            this.googleMap.getUiSettings().setMyLocationButtonEnabled(true);
-            this.googleMap.getUiSettings().setMapToolbarEnabled(false);
+            this.googleMap.getUiSettings().setMyLocationButtonEnabled(false);
+            this.googleMap.getUiSettings().setMapToolbarEnabled(true);
         } catch (SecurityException ex) {
             ex.printStackTrace();
         }
     }
 
-    private void restoreLastCameraPosition() {
-        if (lastCameraPosition != null) {
-            googleMap.moveCamera(CameraUpdateFactory.newCameraPosition(lastCameraPosition));
-        }
-    }
-
     void onSaveInstanceState(Bundle outState) {
-        outState.putParcelable(Arguments.ARG_MAP_CAMERA_POSITION, googleMap.getCameraPosition());
     }
 
     void onViewStateRestored(Bundle savedInstanceState) {
-        lastCameraPosition = savedInstanceState.getParcelable(Arguments.ARG_MAP_CAMERA_POSITION);
     }
 
     void onResume() {
@@ -142,7 +132,28 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
     public void onConnected(@Nullable Bundle bundle) {
         Log.i(TAG, "Connected to GoogleApiClient");
         if (mapsPresenterView != null) {
+            restoreLastCameraPosition();
             mapsPresenterView.onGoogleApiClientConnected();
+        }
+    }
+
+    private void restoreLastCameraPosition() {
+        updateMyLocationCameraPosition(false);
+    }
+
+    public void updateMyLocationCameraPosition(boolean animate) {
+        try {
+            Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+            if (lastLocation != null) {
+                LatLng latLng = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
+                if (animate) {
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, MY_LOCATION_ZOOM));
+                } else {
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, MY_LOCATION_ZOOM));
+                }
+            }
+        } catch (SecurityException ex) {
+            ex.printStackTrace();
         }
     }
 

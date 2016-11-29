@@ -3,6 +3,8 @@ package com.punchlag.wigt.maps;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -15,6 +17,7 @@ import com.punchlag.wigt.utils.PermissionChecker;
 import com.punchlag.wigt.utils.SystemUtils;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 
 public class MapsFragment extends BaseFragment implements MapsPresenterView {
 
@@ -24,6 +27,9 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
 
     @BindView(R.id.mapView)
     MapView mapView;
+
+    @BindView(R.id.myLocationButton)
+    FloatingActionButton myLocationButton;
 
     private MapsPresenter mapsPresenter;
 
@@ -70,6 +76,15 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
         }
     }
 
+    @OnClick(R.id.myLocationButton)
+    public void onMyLocationButtonClicked(View v) {
+        if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
+            mapsPresenter.updateMyLocationCameraPosition(true);
+        } else {
+            // TODO : show pop-up about permissions
+        }
+    }
+
     private void checkLocationPermission() {
         if (!PermissionChecker.hasLocationPermissionGranted(getContext())) {
             PermissionChecker.requestLocationPermission(this, REQUEST_CODE_LOCATION_PERMISSION);
@@ -80,7 +95,7 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
-            case REQUEST_CODE_LOCATION_PERMISSION:
+            case REQUEST_CODE_LOCATION_PERMISSION: {
                 if (PermissionChecker.hasLocationPermissionResultGranted(permissions, grantResults)) {
                     if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
                         mapsPresenter.getMapAsync(mapView);
@@ -88,7 +103,8 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
                 } else {
                     Toast.makeText(getContext(), R.string.text_location_permission_denied, Toast.LENGTH_SHORT).show();
                 }
-                break;
+            }
+            break;
             default:
                 // TODO : show pop-up about permissions
                 break;

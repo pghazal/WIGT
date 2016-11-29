@@ -55,7 +55,7 @@ public class LocationUpdateService extends IntentService {
             LocationResult locationResult = LocationResult.extractResult(intent);
             Location location = locationResult.getLastLocation();
             if (location != null) {
-                Log.d("locationtesting", "accuracy: " + location.getAccuracy() + " lat: " + location.getLatitude() + " lon: " + location.getLongitude());
+                Log.d(TAG, "accuracy: " + location.getAccuracy() + " lat: " + location.getLatitude() + " lon: " + location.getLongitude());
             }
         }
     }
