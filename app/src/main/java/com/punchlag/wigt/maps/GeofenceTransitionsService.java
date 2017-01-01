@@ -1,5 +1,6 @@
 package com.punchlag.wigt.maps;
 
+import android.app.AlarmManager;
 import android.app.IntentService;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -17,8 +18,10 @@ import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofenceStatusCodes;
 import com.google.android.gms.location.GeofencingEvent;
 import com.punchlag.wigt.R;
+import com.punchlag.wigt.alarm.AlarmReceiver;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class GeofenceTransitionsService extends IntentService {
@@ -49,6 +52,7 @@ public class GeofenceTransitionsService extends IntentService {
                     triggeringGeofences);
 
             sendNotification(geofenceTransitionDetails);
+            AlarmReceiver.wakeUp(getApplicationContext());
             Log.i(TAG, geofenceTransitionDetails);
         } else {
             Log.e(TAG, getString(R.string.geofence_transition_invalid_type, geofenceTransition));
