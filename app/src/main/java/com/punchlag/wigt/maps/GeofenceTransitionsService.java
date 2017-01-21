@@ -1,6 +1,5 @@
 package com.punchlag.wigt.maps;
 
-import android.app.AlarmManager;
 import android.app.IntentService;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -21,7 +20,6 @@ import com.punchlag.wigt.R;
 import com.punchlag.wigt.alarm.AlarmReceiver;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 public class GeofenceTransitionsService extends IntentService {

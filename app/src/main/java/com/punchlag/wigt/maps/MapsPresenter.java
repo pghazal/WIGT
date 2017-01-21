@@ -120,17 +120,17 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
 
     @Override
     public void onConnectionSuspended(int i) {
-        Log.i(TAG, "Connection suspended to GoogleApiClient");
+        Log.d(TAG, "Connection suspended to GoogleApiClient");
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.i(TAG, "Connection to GoogleApiClient Failed");
+        Log.d(TAG, "Connection to GoogleApiClient Failed");
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        Log.i(TAG, "Connected to GoogleApiClient");
+        Log.d(TAG, "Connected to GoogleApiClient");
         if (mapsPresenterView != null) {
             restoreLastCameraPosition();
             mapsPresenterView.onGoogleApiClientConnected();
