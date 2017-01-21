@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 
 import com.punchlag.wigt.R;
 import com.punchlag.wigt.fragment.BaseFragment;
@@ -47,8 +49,17 @@ public class GeofencesListFragment extends BaseFragment {
 
     @Override
     public void configureSubviews(Bundle savedInstanceState) {
+        updateActivityContainerConstraint();
+
         geofenceAdapter = new GeofenceAdapter(geofences);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(geofenceAdapter);
+    }
+
+    private void updateActivityContainerConstraint() {
+        ViewGroup activityContainer = (ViewGroup) getActivity().findViewById(R.id.activity_container);
+        RelativeLayout.LayoutParams p = (RelativeLayout.LayoutParams) activityContainer.getLayoutParams();
+        p.addRule(RelativeLayout.BELOW, R.id.toolbar);
+        activityContainer.setLayoutParams(p);
     }
 }

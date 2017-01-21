@@ -5,6 +5,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
@@ -57,8 +59,17 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
     }
 
     public void configureSubviews(Bundle savedInstanceState) {
+        updateActivityContainerConstraint();
+
         mapView.onCreate(savedInstanceState);
         mapsPresenter.getMapAsync(mapView);
+    }
+
+    private void updateActivityContainerConstraint() {
+        ViewGroup activityContainer = (ViewGroup) getActivity().findViewById(R.id.activity_container);
+        RelativeLayout.LayoutParams p = (RelativeLayout.LayoutParams) activityContainer.getLayoutParams();
+        p.removeRule(RelativeLayout.BELOW);
+        activityContainer.setLayoutParams(p);
     }
 
     @Override

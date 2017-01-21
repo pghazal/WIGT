@@ -17,8 +17,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     @BindView(R.id.toolbar)
     Toolbar toolbar;
 
-    @BindView(R.id.activity_content)
-    public FrameLayout activityContent;
+    @BindView(R.id.activity_container)
+    public FrameLayout activityContainer;
 
     public abstract int getLayoutResourceId();
 
@@ -46,7 +46,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         }
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(activityContent.getId(), fragment, tag)
+                .replace(activityContainer.getId(), fragment, tag)
                 .commit();
         return true;
     }
