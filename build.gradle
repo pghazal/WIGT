@@ -18,6 +18,7 @@ ext {
     min_sdk_version = 19
     compile_sdk_version = 24
     build_tools_version = '24.0.3'
+    support_version = '25.1.0'
 }
 
 allprojects {
