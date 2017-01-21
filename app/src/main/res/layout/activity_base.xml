@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="start|center_vertical"
             android:clickable="true"
-            app:fabSize="normal"
+            app:fabSize="mini"
             app:srcCompat="@drawable/ic_settings_light"/>
 
         <include
