@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.NotificationCompat;
 import android.text.TextUtils;
@@ -18,6 +19,8 @@ import com.google.android.gms.location.GeofenceStatusCodes;
 import com.google.android.gms.location.GeofencingEvent;
 import com.punchlag.wigt.R;
 import com.punchlag.wigt.alarm.AlarmReceiver;
+import com.punchlag.wigt.model.GeofenceModel;
+import com.punchlag.wigt.storage.GeofenceStorage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +28,8 @@ import java.util.List;
 public class GeofenceTransitionsService extends IntentService {
 
     protected static final String TAG = "GeofenceTransitionsService";
+
+    private GeofenceStorage geofenceStorage;
 
     public GeofenceTransitionsService() {
         super(TAG);
@@ -45,16 +50,42 @@ public class GeofenceTransitionsService extends IntentService {
                 geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
 
             List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
+            Geofence triggeredGeofence = triggeringGeofences.get(0);
 
-            String geofenceTransitionDetails = getGeofenceTransitionDetails(geofenceTransition,
-                    triggeringGeofences);
+            if (geofenceStorage == null) {
+                geofenceStorage = new GeofenceStorage(getApplicationContext());
+            }
 
-            sendNotification(geofenceTransitionDetails);
-            AlarmReceiver.wakeUp(getApplicationContext());
-            Log.i(TAG, geofenceTransitionDetails);
+            GeofenceModel geofenceModel = getModelFromGeofence(triggeredGeofence);
+
+            if (geofenceModel != null && geofenceModel.isEnabled()) {
+
+                String geofenceTransitionDetails = getGeofenceTransitionDetails(geofenceTransition,
+                        triggeringGeofences);
+
+                sendNotification(geofenceTransitionDetails);
+                AlarmReceiver.wakeUp(getApplicationContext(), geofenceModel);
+                Log.i(TAG, geofenceTransitionDetails);
+            }
         } else {
             Log.e(TAG, getString(R.string.geofence_transition_invalid_type, geofenceTransition));
         }
+    }
+
+    private GeofenceModel getModelFromGeofence(Geofence geofence) {
+        if (geofence == null) {
+            return null;
+        }
+
+        List<GeofenceModel> geofences = geofenceStorage.loadGeofences();
+
+        for (GeofenceModel geofenceModel : geofences) {
+            if (geofenceModel.getId().equals(geofence.getRequestId())) {
+                return geofenceModel;
+            }
+        }
+
+        return null;
     }
 
     private String getGeofenceTransitionDetails(int geofenceTransition,

@@ -51,7 +51,7 @@ public class GeofencesListFragment extends BaseFragment {
     public void configureSubviews(Bundle savedInstanceState) {
         updateActivityContainerConstraint();
 
-        geofenceAdapter = new GeofenceAdapter(geofences);
+        geofenceAdapter = new GeofenceAdapter(getContext(), geofences);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(geofenceAdapter);
     }
