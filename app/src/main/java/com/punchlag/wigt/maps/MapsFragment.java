@@ -82,6 +82,7 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
             mapsPresenter.updateMyLocationCameraPosition(true);
         } else {
             // TODO : show pop-up about permissions
+            checkLocationPermission();
         }
     }
 
