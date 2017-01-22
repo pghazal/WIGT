@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.os.Bundle;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.NotificationCompat;
 import android.text.TextUtils;
@@ -52,6 +51,10 @@ public class GeofenceTransitionsService extends IntentService {
             List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
             Geofence triggeredGeofence = triggeringGeofences.get(0);
 
+            String geofenceTransitionDetails = getGeofenceTransitionDetails(geofenceTransition,
+                    triggeringGeofences);
+            Log.i(TAG, geofenceTransitionDetails);
+
             if (geofenceStorage == null) {
                 geofenceStorage = new GeofenceStorage(getApplicationContext());
             }
@@ -59,13 +62,8 @@ public class GeofenceTransitionsService extends IntentService {
             GeofenceModel geofenceModel = getModelFromGeofence(triggeredGeofence);
 
             if (geofenceModel != null && geofenceModel.isEnabled()) {
-
-                String geofenceTransitionDetails = getGeofenceTransitionDetails(geofenceTransition,
-                        triggeringGeofences);
-
                 sendNotification(geofenceTransitionDetails);
                 AlarmReceiver.wakeUp(getApplicationContext(), geofenceModel);
-                Log.i(TAG, geofenceTransitionDetails);
             }
         } else {
             Log.e(TAG, getString(R.string.geofence_transition_invalid_type, geofenceTransition));

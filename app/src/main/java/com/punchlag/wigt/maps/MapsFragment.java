@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -16,12 +15,11 @@ import com.punchlag.wigt.R;
 import com.punchlag.wigt.fragment.BaseFragment;
 import com.punchlag.wigt.utils.NetworkUtils;
 import com.punchlag.wigt.utils.PermissionChecker;
-import com.punchlag.wigt.utils.SystemUtils;
 
 import butterknife.BindView;
 import butterknife.OnClick;
 
-public class MapsFragment extends BaseFragment implements MapsPresenterView {
+public class MapsFragment extends BaseFragment implements MapsPresenterView, IGoogleApiView {
 
     public static final String FRAGMENT_TAG = "MapsFragment";
 
@@ -34,6 +32,7 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
     FloatingActionButton myLocationButton;
 
     private MapsPresenter mapsPresenter;
+    private GoogleApiPresenter googleApiPresenter;
 
     public static MapsFragment newInstance() {
         MapsFragment fragment = new MapsFragment();
@@ -51,11 +50,10 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (SystemUtils.isAboveApi23()) {
-            checkLocationPermission();
-        }
+        checkLocationPermission();
 
         mapsPresenter = new MapsPresenter(this);
+        googleApiPresenter = new GoogleApiPresenter(getContext(), this);
     }
 
     public void configureSubviews(Bundle savedInstanceState) {
@@ -75,22 +73,15 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         mapView.onSaveInstanceState(outState);
-        mapsPresenter.onSaveInstanceState(outState);
         super.onSaveInstanceState(outState);
     }
 
-    @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
-        if (savedInstanceState != null) {
-            mapsPresenter.onViewStateRestored(savedInstanceState);
-        }
-    }
-
     @OnClick(R.id.myLocationButton)
-    public void onMyLocationButtonClicked(View v) {
+    public void onMyLocationButtonClicked() {
         if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
-            mapsPresenter.updateMyLocationCameraPosition(true);
+            if (googleApiPresenter.isConnected()) {
+                mapsPresenter.updateMyLocationCameraPosition(googleApiPresenter.getGoogleApiClient(), true);
+            }
         } else {
             // TODO : show pop-up about permissions
             checkLocationPermission();
@@ -124,30 +115,32 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
     }
 
     @Override
-    public void onGoogleApiClientConnected() {
-        if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
-            mapsPresenter.requestLocationUpdates(getContext(), LocationUpdateService.LocationRequestUpdate.HIGH, null);
-            mapsPresenter.enableGeofenceTracking(getContext());
-        }
-    }
-
-    @Override
     public void onMapReady(GoogleMap googleMap) {
-        if (SystemUtils.isAboveApi23()) {
-            if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
-                mapsPresenter.init(getContext());
-            }
-        } else {
-            mapsPresenter.init(getContext());
+        if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
+            mapsPresenter.initialize(getContext());
+            googleApiPresenter.connect();
         }
     }
 
     @Override
     public void onMapClick(LatLng latLng) {
         if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
-            mapsPresenter.handleMapClick(getContext(), latLng);
+            if(googleApiPresenter.isConnected()) {
+                mapsPresenter.handleMapClick(getContext(), googleApiPresenter.getGoogleApiClient(), latLng);
+            }
         } else {
             // TODO show message maybe + request permission ?
+        }
+    }
+
+    @Override
+    public void onGoogleApiClientConnected() {
+        if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
+            if (googleApiPresenter.isConnected()) {
+                mapsPresenter.restoreLastCameraPosition(googleApiPresenter.getGoogleApiClient());
+                mapsPresenter.requestLocationUpdates(getContext(), googleApiPresenter.getGoogleApiClient(), LocationUpdateService.LocationRequestUpdate.HIGH, null);
+                mapsPresenter.enableGeofenceTracking(getContext(), googleApiPresenter.getGoogleApiClient());
+            }
         }
     }
 
@@ -161,10 +154,7 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
     public void onResume() {
         super.onResume();
         mapView.onResume();
-
-        if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
-            mapsPresenter.onResume();
-        }
+        googleApiPresenter.connect();
 
         if (!NetworkUtils.isConnectionAvailable(getContext())) {
             Toast.makeText(getContext(), R.string.text_network_not_available, Toast.LENGTH_SHORT).show();
@@ -175,9 +165,7 @@ public class MapsFragment extends BaseFragment implements MapsPresenterView {
     public void onPause() {
         super.onPause();
         mapView.onPause();
-        if (PermissionChecker.hasLocationPermissionGranted(getContext())) {
-            mapsPresenter.onPause(getContext());
-        }
+        googleApiPresenter.disconnect();
     }
 
     @Override

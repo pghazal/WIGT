@@ -7,7 +7,5 @@ interface MapsPresenterView {
 
     void onMapReady(GoogleMap googleMap);
 
-    void onGoogleApiClientConnected();
-
     void onMapClick(LatLng latLng);
 }

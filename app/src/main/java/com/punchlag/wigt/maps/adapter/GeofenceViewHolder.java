@@ -7,6 +7,7 @@ import android.widget.TextView;
 
 import com.punchlag.wigt.R;
 import com.punchlag.wigt.model.GeofenceModel;
+import com.punchlag.wigt.storage.GeofenceStorage;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -24,6 +25,8 @@ public class GeofenceViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.switch_enabled)
     SwitchCompat switchEnabled;
 
+    private GeofenceModel geofenceModel;
+
     public GeofenceViewHolder(View itemView) {
         super(itemView);
         ButterKnife.bind(this, itemView);
@@ -33,6 +36,9 @@ public class GeofenceViewHolder extends RecyclerView.ViewHolder {
         if (geofenceModel == null) {
             return;
         }
+
+        this.geofenceModel = geofenceModel;
+
         geofenceIdTv.setText(geofenceModel.getId());
         latitudeTv.setText("Lat: " + geofenceModel.getLatitude());
         longitudeTv.setText("Lon: " + geofenceModel.getLongitude());
@@ -41,6 +47,10 @@ public class GeofenceViewHolder extends RecyclerView.ViewHolder {
 
     @OnClick(R.id.switch_enabled)
     public void onGeofenceSwitchClicked() {
+        GeofenceStorage geofenceStorage = new GeofenceStorage(itemView.getContext());
 
+        geofenceModel.setEnabled(switchEnabled.isChecked());
+
+        geofenceStorage.storeGeofence(geofenceModel.getId(), geofenceModel);
     }
 }

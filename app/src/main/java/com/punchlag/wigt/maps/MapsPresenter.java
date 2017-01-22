@@ -4,12 +4,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
-import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
@@ -28,17 +25,15 @@ import com.punchlag.wigt.storage.GeofenceStorage;
 import java.util.ArrayList;
 import java.util.List;
 
-class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener, GoogleMap.OnMapClickListener {
+class MapsPresenter implements OnMapReadyCallback, GoogleMap.OnMapClickListener {
 
     private static final String TAG = "MapsPresenter";
 
-    private static final float MY_LOCATION_ZOOM = 18.0f;
+    private static final float MY_LOCATION_ZOOM = 15.0f;
 
     private MapsPresenterView mapsPresenterView;
 
     private GeofenceStorage geofenceStorage;
-    private GoogleApiClient googleApiClient;
     private GoogleMap googleMap;
 
     private List<GeofenceModel> geofences;
@@ -48,28 +43,11 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
         this.geofences = new ArrayList<>();
     }
 
-    void init(Context context) {
+    void initialize(Context context) {
         geofenceStorage = new GeofenceStorage(context);
         geofences.addAll(geofenceStorage.loadGeofences());
 
-        initGoogleApiClient(context);
         initMapSettings();
-    }
-
-    private synchronized void initGoogleApiClient(Context context) {
-        googleApiClient = new GoogleApiClient.Builder(context)
-                .addApi(LocationServices.API)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
-        googleApiClient.connect();
-    }
-
-    private boolean isGoogleApiClientAvailable() {
-        if (googleApiClient != null && !googleApiClient.isConnecting() && googleApiClient.isConnected()) {
-            return true;
-        }
-        return false;
     }
 
     private void initMapSettings() {
@@ -82,27 +60,10 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
         }
     }
 
-    void onSaveInstanceState(Bundle outState) {
-    }
-
-    void onViewStateRestored(Bundle savedInstanceState) {
-    }
-
-    void onResume() {
-        if (googleApiClient != null && !googleApiClient.isConnecting() && !googleApiClient.isConnected()) {
-            googleApiClient.connect();
-        }
-    }
-
     void onPause(Context context) {
-        if (isGoogleApiClientAvailable()) {
-            requestLocationUpdates(context, LocationUpdateService.LocationRequestUpdate.LOW, new ResultCallback<Status>() {
-                @Override
-                public void onResult(@NonNull Status status) {
-                    googleApiClient.disconnect();
-                }
-            });
-        }
+       /* if (isGoogleApiClientAvailable()) {
+            requestLocationUpdates(context, LocationUpdateService.LocationRequestUpdate.LOW, null);
+        }*/
     }
 
     void getMapAsync(MapView mapView) {
@@ -118,30 +79,7 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
         }
     }
 
-    @Override
-    public void onConnectionSuspended(int i) {
-        Log.d(TAG, "Connection suspended to GoogleApiClient");
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.d(TAG, "Connection to GoogleApiClient Failed");
-    }
-
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        Log.d(TAG, "Connected to GoogleApiClient");
-        if (mapsPresenterView != null) {
-            restoreLastCameraPosition();
-            mapsPresenterView.onGoogleApiClientConnected();
-        }
-    }
-
-    private void restoreLastCameraPosition() {
-        updateMyLocationCameraPosition(false);
-    }
-
-    public void updateMyLocationCameraPosition(boolean animate) {
+    public void updateMyLocationCameraPosition(GoogleApiClient googleApiClient, boolean animate) {
         try {
             Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
             if (lastLocation != null) {
@@ -157,6 +95,10 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
         }
     }
 
+    public void restoreLastCameraPosition(GoogleApiClient googleApiClient) {
+        updateMyLocationCameraPosition(googleApiClient, false);
+    }
+
     @Override
     public void onMapClick(LatLng latLng) {
         if (mapsPresenterView != null) {
@@ -164,13 +106,11 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
         }
     }
 
-    void requestLocationUpdates(Context context, LocationUpdateService.LocationRequestUpdate locationRequestUpdate, ResultCallback<Status> resultCallback) {
+    void requestLocationUpdates(Context context, GoogleApiClient googleApiClient, LocationUpdateService.LocationRequestUpdate locationRequestUpdate, ResultCallback<Status> resultCallback) {
         try {
-            if (isGoogleApiClientAvailable()) {
-                LocationRequest locationRequest = LocationUpdateService.LocationRequestUpdate.build(locationRequestUpdate);
-                LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, getLocationUpdatePendingIntent(context))
-                        .setResultCallback(resultCallback);
-            }
+            LocationRequest locationRequest = LocationUpdateService.LocationRequestUpdate.build(locationRequestUpdate);
+            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, getLocationUpdatePendingIntent(context))
+                    .setResultCallback(resultCallback);
         } catch (SecurityException ex) {
             ex.printStackTrace();
         }
@@ -181,22 +121,20 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
         return PendingIntent.getService(context, 0, service, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
-    void enableGeofenceTracking(Context context) {
+    void enableGeofenceTracking(Context context, GoogleApiClient googleApiClient) {
         List<Geofence> geofences = getGoogleGeofences();
         if (!geofences.isEmpty()) {
             drawAllGeofences();
             try {
-                if (isGoogleApiClientAvailable()) {
-                    LocationServices.GeofencingApi
-                            .addGeofences(googleApiClient, getGeofencingRequest(geofences), getGeofencePendingIntent(context));
-                }
+                LocationServices.GeofencingApi
+                        .addGeofences(googleApiClient, getGeofencingRequest(geofences), getGeofencePendingIntent(context));
             } catch (SecurityException ex) {
                 ex.printStackTrace();
             }
         }
     }
 
-    void handleMapClick(Context context, final LatLng latLng) {
+    void handleMapClick(Context context, GoogleApiClient googleApiClient, final LatLng latLng) {
         GeofenceModel geofenceClicked = null;
         for (GeofenceModel geofenceModel : geofences) {
             if (hasGeofenceClicked(latLng, geofenceModel)) {
@@ -208,10 +146,10 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
         // Geofence clicked and found
         if (geofenceClicked != null) {
             Log.d(TAG, "Geofence Clicked with id : " + geofenceClicked.getId());
-            removeGeofence(geofenceClicked);
+            removeGeofence(googleApiClient, geofenceClicked);
             drawAllGeofences();
         } else {
-            GeofenceModel geofenceModel = addGeofence(context, latLng);
+            GeofenceModel geofenceModel = addGeofence(context, googleApiClient, latLng);
             drawGeofence(geofenceModel);
         }
     }
@@ -224,30 +162,28 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
         return distance[0] < radius;
     }
 
-    private void removeGeofence(final GeofenceModel geofenceModel) {
+    private void removeGeofence(GoogleApiClient googleApiClient, final GeofenceModel geofenceModel) {
         try {
             List<String> geofenceIdToRemove = new ArrayList<>();
             geofenceIdToRemove.add(geofenceModel.getId());
             geofences.remove(geofenceModel);
 
-            if (isGoogleApiClientAvailable()) {
-                LocationServices.GeofencingApi.removeGeofences(googleApiClient, geofenceIdToRemove)
-                        .setResultCallback(new ResultCallback<Status>() {
-                            @Override
-                            public void onResult(@NonNull Status status) {
-                                if (status.isSuccess()) {
-                                    Log.d(TAG, "REMOVE : " + geofenceModel.toString());
-                                    geofenceStorage.removeGeofence(geofenceModel);
-                                }
+            LocationServices.GeofencingApi.removeGeofences(googleApiClient, geofenceIdToRemove)
+                    .setResultCallback(new ResultCallback<Status>() {
+                        @Override
+                        public void onResult(@NonNull Status status) {
+                            if (status.isSuccess()) {
+                                Log.d(TAG, "REMOVE : " + geofenceModel.toString());
+                                geofenceStorage.removeGeofence(geofenceModel);
                             }
-                        });
-            }
+                        }
+                    });
         } catch (SecurityException ex) {
             ex.printStackTrace();
         }
     }
 
-    private GeofenceModel addGeofence(Context context, LatLng latLng) {
+    private GeofenceModel addGeofence(Context context, GoogleApiClient googleApiClient, LatLng latLng) {
         String id = geofenceStorage.generateId();
         int radius = 100;
         final GeofenceModel geofenceModel = new GeofenceModel(id, latLng.latitude, latLng.longitude, radius,
@@ -257,19 +193,17 @@ class MapsPresenter implements OnMapReadyCallback, GoogleApiClient.ConnectionCal
         googleMap.animateCamera(CameraUpdateFactory.newLatLng(geofenceModel.getLatLng()));
 
         try {
-            if (isGoogleApiClientAvailable()) {
-                LocationServices.GeofencingApi
-                        .addGeofences(googleApiClient, getGeofencingRequest(getGoogleGeofences()),
-                                getGeofencePendingIntent(context)).setResultCallback(new ResultCallback<Status>() {
-                    @Override
-                    public void onResult(@NonNull Status status) {
-                        if (status.isSuccess()) {
-                            Log.d(TAG, "ADD : " + geofenceModel.toString());
-                            geofenceStorage.storeGeofence(geofenceModel.getId(), geofenceModel);
-                        }
+            LocationServices.GeofencingApi
+                    .addGeofences(googleApiClient, getGeofencingRequest(getGoogleGeofences()),
+                            getGeofencePendingIntent(context)).setResultCallback(new ResultCallback<Status>() {
+                @Override
+                public void onResult(@NonNull Status status) {
+                    if (status.isSuccess()) {
+                        Log.d(TAG, "ADD : " + geofenceModel.toString());
+                        geofenceStorage.storeGeofence(geofenceModel.getId(), geofenceModel);
                     }
-                });
-            }
+                }
+            });
         } catch (SecurityException ex) {
             ex.printStackTrace();
         }
